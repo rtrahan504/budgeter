@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="Budgeter.NumericUpDown"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Budgeter"
+            x:Name="_this"
+             mc:Ignorable="d" Width="230" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" MinHeight="20" MouseEnter="_this_MouseEnter" MouseLeave="_this_MouseLeave">
+    <Border Name="border" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="1">
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" Name="textBox" VerticalAlignment="Center" MinWidth="25" Text="{Binding ElementName=_this, Path=ValueString}" Background="{x:Null}" Padding="2" BorderBrush="{x:Null}" PreviewKeyDown="TextBox_PreviewKeyDown" BorderThickness ="0"/>
+            <ScrollBar Grid.Column="1" Name="scrollBar" Scroll="ScrollBar_Scroll" Minimum="0" Maximum="2" Value="1" SmallChange="1" Height="{Binding ActualHeight, ElementName=textBox}" MinHeight="28" BorderThickness="1,0,1,0"/>
+        </Grid>
+    </Border>
+</UserControl>

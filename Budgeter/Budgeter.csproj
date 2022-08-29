@@ -8,9 +8,31 @@
  </PropertyGroup>
 
  <ItemGroup>
-  <Reference Include="Xceed.Wpf.Toolkit">
-   <HintPath>..\Extended.WPF.Toolkit.Binaries.NET.4.x\Xceed.Wpf.Toolkit.dll</HintPath>
-  </Reference>
+ </ItemGroup>
+
+ <ItemGroup>
+   <Page Remove="Icons\Open_16x.xaml" />
+ </ItemGroup>
+
+ <ItemGroup>
+   <Resource Include="Icons\Exit_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
+   <Resource Include="Icons\NewFile_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
+   <Resource Include="Icons\OpenFile_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
+   <Resource Include="Icons\Refresh_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
+   <Resource Include="Icons\SaveAs_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
+   <Resource Include="Icons\Save_16x.png">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </Resource>
  </ItemGroup>
 
 </Project>

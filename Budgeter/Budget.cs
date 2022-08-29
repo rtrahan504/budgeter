@@ -38,9 +38,9 @@ namespace Budgeter
 			get
 			{
 				if (Predecessor == null)
-					return Amount ?? 0;
+					return Enabled ? (Amount ?? 0) : 0;
 				else
-					return Predecessor.Balance + (Amount ?? 0);
+					return Predecessor.Balance + (Enabled ? (Amount ?? 0) : 0);
 			}
 		}
 
@@ -61,7 +61,6 @@ namespace Budgeter
 		public override String Name { get { return ""; } }
 		public override String Type { get { return "Today"; } }
 		public override DateTime Date { get { return DateTime.Now; } }
-		public override double Balance { get { return base.Balance; } }
 	}
 
 	[Serializable]
@@ -138,44 +137,37 @@ namespace Budgeter
 		public AmountModes AmountMode { get; set; }
 		public double PredefinedAmount { get; set; }
 
-		public List<RecurringCharge> RecurringCharges
+		public List<RecurringCharge> GetRecurringCharges(int daysToForecast)
 		{
-			get
+			if (RecurrenceInterval == RecurrenceIntervals.None || Interval == 0 || Date.Year < 2000)
 			{
-				if (RecurrenceInterval == RecurrenceIntervals.None || Interval == 0 || Date.Year < 2000)
+				if (m_RecurringCharges.Count != 1)
 				{
-					if (m_RecurringCharges.Count != 1)
-					{
-						m_RecurringCharges.Clear();
-						m_RecurringCharges.Add(new RecurringCharge(this, 0));
-					}
-				}
-				else
-				{
-					var endDate = DateTime.Now.AddMonths(1);
-
-					var oldCharges = m_RecurringCharges.ToList();
-
 					m_RecurringCharges.Clear();
-					for (UInt32 index = 0; true; ++index)
-					{
-						var newCharge = new RecurringCharge(this, index);
-						var reuseCharge = oldCharges.Find((val) => val.Date == newCharge.Date);
-						var charge = reuseCharge ?? newCharge;
-
-						if (charge.Date < endDate)
-							m_RecurringCharges.Add(charge);
-						else
-							break;
-					}
+					m_RecurringCharges.Add(new RecurringCharge(this, 0));
 				}
-
-				return m_RecurringCharges;
 			}
-			private set
+			else
 			{
-				m_RecurringCharges = value;
+				var endDate = DateTime.Now.AddDays(daysToForecast);
+
+				var oldCharges = m_RecurringCharges.ToList();
+
+				m_RecurringCharges.Clear();
+				for (UInt32 index = 0; true; ++index)
+				{
+					var newCharge = new RecurringCharge(this, index);
+					var reuseCharge = oldCharges.Find((val) => DateOnly.FromDateTime(val.Date) == DateOnly.FromDateTime(newCharge.Date));
+					var charge = reuseCharge ?? newCharge;
+
+					if (charge.Date < endDate)
+						m_RecurringCharges.Add(charge);
+					else
+						break;
+				}
 			}
+
+			return m_RecurringCharges;
 		}
 
 		public RecurringChargeTemplate()
@@ -243,7 +235,7 @@ namespace Budgeter
 				if (Template.AmountMode == AmountModes.Predefined && value.HasValue)
 					Template.PredefinedAmount = value.GetValueOrDefault(0);
 				else
-					definedAmount = value;
+					definedAmount = value == 0 ? null : value;
 			}
 		}
 
@@ -267,11 +259,8 @@ namespace Budgeter
 	[Serializable]
 	public class Budget
 	{
-		public Today Today { get; private set; }
-		public ObservableCollection<RecurringChargeTemplate> RecurringChargeTemplates { get; private set; }
-		public ObservableCollection<Override> BalanceOverrides { get; private set; }
-		public ObservableCollection<Charge> Charges { get; private set; }
-		public ObservableCollection<BudgetEntry> Entries { get; private set; }
+
+		public ObservableCollection<Account> Accounts { get; private set; }
 
 
 		public void Save(String filename)
@@ -295,11 +284,12 @@ namespace Budgeter
 					tmpBudget = formatter.Deserialize(stream) as Budget;
 					if (tmpBudget != null)
 					{
-						tmpBudget.RecurringChargeTemplates.CollectionChanged += tmpBudget.OnCollectionChanged;
-						tmpBudget.BalanceOverrides.CollectionChanged += tmpBudget.OnCollectionChanged;
-						tmpBudget.Charges.CollectionChanged += tmpBudget.OnCollectionChanged;
-
-						tmpBudget.UpdateEntries();
+						foreach (var account in tmpBudget.Accounts)
+						{
+							account.RecurringChargeTemplates.CollectionChanged += account.OnCollectionChanged;
+							account.BalanceOverrides.CollectionChanged += account.OnCollectionChanged;
+							account.Charges.CollectionChanged += account.OnCollectionChanged;
+						}
 					}
 				};
 			}
@@ -314,7 +304,31 @@ namespace Budgeter
 
 		public Budget()
 		{
+			Accounts = new ObservableCollection<Account>();
+		}
+	}
+
+
+	[Serializable]
+	public class Account
+	{
+		public Today Today { get; private set; }
+		public String Name { get; set; }
+		public ObservableCollection<RecurringChargeTemplate> RecurringChargeTemplates { get; set; }
+		public ObservableCollection<Override> BalanceOverrides { get; set; }
+		public ObservableCollection<Charge> Charges { get; set; }
+		public ObservableCollection<BudgetEntry> Entries { get; set; }
+		public int DaysToForecast
+		{
+			get { return m_DaysToForecast; }
+			set { m_DaysToForecast = value; UpdateEntries(); }
+		}
+
+
+		public Account()
+		{
 			Today = new Today();
+			Name = "{new account}";
 			RecurringChargeTemplates = new ObservableCollection<RecurringChargeTemplate>();
 			BalanceOverrides = new ObservableCollection<Override>();
 			Charges = new ObservableCollection<Charge>();
@@ -325,16 +339,19 @@ namespace Budgeter
 			Charges.CollectionChanged += OnCollectionChanged;
 		}
 
-		void OnCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		public void OnCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			UpdateEntries();
 		}
 
 		public void UpdateEntries()
 		{
+			if (Today == null)
+				Today = new();
+
 			List<BudgetEntry> tmpList = new()
-			{ 
-				Today 
+			{
+				Today
 			};
 
 			foreach (var item in BalanceOverrides)
@@ -342,7 +359,7 @@ namespace Budgeter
 			foreach (var item in Charges)
 				tmpList.Add(item);
 			foreach (RecurringChargeTemplate chargeTemplate in RecurringChargeTemplates)
-				tmpList.AddRange(chargeTemplate.RecurringCharges);
+				tmpList.AddRange(chargeTemplate.GetRecurringCharges(m_DaysToForecast));
 
 			tmpList.Sort((lhs, rhs) =>
 			{
@@ -365,5 +382,7 @@ namespace Budgeter
 				Entries.Insert(0, entry);
 			}
 		}
+
+		int m_DaysToForecast = 62;
 	}
 }
