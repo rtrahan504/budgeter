@@ -77,6 +77,9 @@
                 <MenuItem Header="_Refresh" Name="MenuItem_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
             </MenuItem>
             <MenuItem Header="_Account">
+                <MenuItem x:Name="MenuItem_Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
+                <MenuItem x:Name="MenuItem_Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                <Separator/>
                 <MenuItem x:Name="MenuItem_BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
                 <MenuItem x:Name="MenuItem_BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
                 <MenuItem x:Name="MenuItem_BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>

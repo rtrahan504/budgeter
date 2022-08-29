@@ -4,11 +4,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Threading;
-using Budgeter;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Linq;
 
 namespace Budgeter
 {
@@ -261,11 +259,11 @@ namespace Budgeter
 				dataGrid_Balance.Items.Refresh();
 				dataGrid_Templates.Items.Refresh();
 			}
-			else if (e.Source == ToolButton_Account_New)
+			else if (e.Source == ToolButton_Account_New || e.Source == MenuItem_Account_NewAccount)
 			{
 				Budgeter.Accounts.Add(new Account());
 			}
-			else if (e.Source == ToolButton_Account_Delete)
+			else if (e.Source == ToolButton_Account_Delete || e.Source == MenuItem_Account_DeleteAccount)
 			{
 				if (SelectedAccount != null && System.Windows.MessageBox.Show("Are you sure you want to delete the selected account?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
 				{

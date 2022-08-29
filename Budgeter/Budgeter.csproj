@@ -5,15 +5,8 @@
   <TargetFramework>net6.0-windows</TargetFramework>
   <Nullable>enable</Nullable>
   <UseWPF>true</UseWPF>
+  <StartupObject>Budgeter.App</StartupObject>
  </PropertyGroup>
-
- <ItemGroup>
- </ItemGroup>
-
- <ItemGroup>
-   <Page Remove="Icons\Open_16x.xaml" />
- </ItemGroup>
-
  <ItemGroup>
    <Resource Include="Icons\Exit_16x.png">
      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -34,5 +27,4 @@
      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
  </ItemGroup>
-
 </Project>
