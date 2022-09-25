@@ -1,114 +1,111 @@
 ﻿<Window x:Class="Budgeter.MainWindow"
-		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:local="clr-namespace:Budgeter"
-		xmlns:sys="clr-namespace:System;assembly=mscorlib"
-		mc:Ignorable="d"
-		Title="{Binding DynamicTitle, RelativeSource={RelativeSource Mode=Self}}" Height="550" Width="900" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Closing="Window_Closing" SourceInitialized="Window_SourceInitialized">
-	<Window.Resources>
-		<Image x:Key="Icon_NewFile" Source="Icons/NewFile_16x.png"/>
-		<Image x:Key="Icon_OpenFile" Source="Icons/OpenFile_16x.png"/>
-		<Image x:Key="Icon_Save" Source="Icons/Save_16x.png"/>
-		<Image x:Key="Icon_SaveAs" Source="Icons/SaveAs_16x.png"/>
-		<Image x:Key="Icon_Exit" Source="Icons/Exit_16x.png"/>
-		<Image x:Key="Icon_Refresh" Source="Icons/Refresh_16x.png"/>
-		<ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="GetEnumValues_RecurrenceInterval">
-			<ObjectDataProvider.MethodParameters>
-				<x:Type TypeName="local:RecurrenceIntervals"/>
-			</ObjectDataProvider.MethodParameters>
-		</ObjectDataProvider>
-		<ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="GetEnumValues_AmountMode">
-			<ObjectDataProvider.MethodParameters>
-				<x:Type TypeName="local:AmountModes"/>
-			</ObjectDataProvider.MethodParameters>
-		</ObjectDataProvider>
-		<local:DoublePositive x:Key="DoublePositive"/>
-		<Style x:Key="VerticalSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
-			<Setter Property="Margin" Value="6,0,6,0"/>
-			<Setter Property="LayoutTransform">
-				<Setter.Value>
-					<TransformGroup>
-						<TransformGroup.Children>
-							<TransformCollection>
-								<RotateTransform Angle="90"/>
-							</TransformCollection>
-						</TransformGroup.Children>
-					</TransformGroup>
-				</Setter.Value>
-			</Setter>
-		</Style>
-		<Style x:Key="ButtonContextMenu" TargetType="{x:Type Button}">
-			<Style.Triggers>
-				<EventTrigger RoutedEvent="Click">
-					<EventTrigger.Actions>
-						<BeginStoryboard>
-							<Storyboard>
-								<BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="ContextMenu.IsOpen">
-									<DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
-								</BooleanAnimationUsingKeyFrames>
-							</Storyboard>
-						</BeginStoryboard>
-					</EventTrigger.Actions>
-				</EventTrigger>
-			</Style.Triggers>
-			<Setter Property="ContextMenu">
-				<Setter.Value>
-					<ContextMenu>
-						<MenuItem/>
-						<MenuItem/>
-					</ContextMenu>
-				</Setter.Value>
-			</Setter>
-		</Style>
-	</Window.Resources>
-	<DockPanel>
-		<Menu DockPanel.Dock="Top">
-			<MenuItem Header="_File">
-				<MenuItem Header="_New" Name="MenuItem_New" Click="OnMenuClick" Icon="{StaticResource Icon_NewFile}"/>
-				<MenuItem Header="_Open..." Name="MenuItem_Open" Click="OnMenuClick" InputGestureText="Ctrl+O" Icon="{StaticResource Icon_OpenFile}"/>
-				<MenuItem Header="_Save" Name="MenuItem_Save" Click="OnMenuClick" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
-				<MenuItem Header="Save As..." Name="MenuItem_SaveAs" Click="OnMenuClick" Icon="{StaticResource Icon_SaveAs}"/>
-				<Separator/>
-				<MenuItem Header="_Exit" Name="MenuItem_Exit" Click="OnMenuClick" Icon="{StaticResource Icon_Exit}"/>
-			</MenuItem>
-            <MenuItem Header="_Edit">
-                <MenuItem Header="_Refresh" Name="MenuItem_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Budgeter"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="{Binding DynamicTitle, RelativeSource={RelativeSource Mode=Self}}" 
+        Height="550" Width="900" 
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+        Closing="Window_Closing" 
+        SourceInitialized="Window_SourceInitialized">
+    <Window.Resources>
+        <Image x:Key="Icon_NewFile" Source="Icons/NewFile_16x.png"/>
+        <Image x:Key="Icon_OpenFile" Source="Icons/OpenFile_16x.png"/>
+        <Image x:Key="Icon_Save" Source="Icons/Save_16x.png"/>
+        <Image x:Key="Icon_SaveAs" Source="Icons/SaveAs_16x.png"/>
+        <Image x:Key="Icon_Exit" Source="Icons/Exit_16x.png"/>
+        <Image x:Key="Icon_Refresh" Source="Icons/Refresh_16x.png"/>
+        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="GetEnumValues_RecurrenceInterval">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:RecurrenceIntervals"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <local:DoublePositive x:Key="DoublePositive"/>
+        <Style x:Key="VerticalSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
+            <Setter Property="Margin" Value="6,0,6,0"/>
+            <Setter Property="LayoutTransform">
+                <Setter.Value>
+                    <TransformGroup>
+                        <TransformGroup.Children>
+                            <TransformCollection>
+                                <RotateTransform Angle="90"/>
+                            </TransformCollection>
+                        </TransformGroup.Children>
+                    </TransformGroup>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ButtonContextMenu" TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Click">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="ContextMenu.IsOpen">
+                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
+                                </BooleanAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+            </Style.Triggers>
+            <Setter Property="ContextMenu">
+                <Setter.Value>
+                    <ContextMenu>
+                        <MenuItem/>
+                        <MenuItem/>
+                    </ContextMenu>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Tag="File_New" Click="OnMenuClick" Icon="{StaticResource Icon_NewFile}"/>
+                <MenuItem Header="_Open..." Tag="File_Open" Click="OnMenuClick" InputGestureText="Ctrl+O" Icon="{StaticResource Icon_OpenFile}"/>
+                <MenuItem Header="_Save" Tag="File_Save" Click="OnMenuClick" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
+                <MenuItem Header="Save As..." Tag="File_SaveAs" Click="OnMenuClick" Icon="{StaticResource Icon_SaveAs}"/>
+                <Separator/>
+                <MenuItem Header="_Exit" Tag="Program_Exit" Click="OnMenuClick" Icon="{StaticResource Icon_Exit}"/>
             </MenuItem>
             <MenuItem Header="_Account">
-                <MenuItem x:Name="MenuItem_Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
-                <MenuItem x:Name="MenuItem_Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
+                <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+            </MenuItem>
+            <MenuItem Header="_Balance Sheet">
+                <MenuItem Tag="BalanceSheet_Refresh" Header="_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
                 <Separator/>
-                <MenuItem x:Name="MenuItem_BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
-                <MenuItem x:Name="MenuItem_BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
-                <MenuItem x:Name="MenuItem_BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
-                <MenuItem x:Name="MenuItem_BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
-                <MenuItem x:Name="MenuItem_BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
-                <Separator/>
-                <MenuItem x:Name="MenuItem_Template_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
-                <MenuItem x:Name="MenuItem_Template_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
-			</MenuItem>
-			<MenuItem Header="_About" Name="MenuItem_About" Click="OnMenuClick"/>
-		</Menu>
-		<Grid Margin="5" Name="Grid_BalanceSheet">
+                <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
+                <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
+                <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
+                <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
+                <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
+                <MenuItem Tag="BalanceSheet_ResetAmount" Click="OnMenuClick" Header="Reset Amount"/>
+            </MenuItem>
+            <MenuItem Header="_Recurring Transactions">
+                <MenuItem Tag="RecurringTransactions_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
+                <MenuItem Tag="RecurringTransactions_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
+            </MenuItem>
+            <MenuItem Header="_About" Tag="About" Click="OnMenuClick"/>
+        </Menu>
+        <Grid Margin="5" Name="Grid_BalanceSheet">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
+            </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" BorderThickness="1" BorderBrush="#FF688CAF" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+            <Border Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
                 <DockPanel>
                     <Label DockPanel.Dock="Top" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">Accounts</Label>
-                    <ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked ="True" Background="{x:Null}" >
-                        <Button x:Name="ToolButton_Account_New" Click="OnMenuClick">New</Button>
-                        <Separator/>
-                        <Button x:Name="ToolButton_Account_Delete" Click="OnMenuClick">Delete</Button>
-                    </ToolBar>
-                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged">
+                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
@@ -123,144 +120,144 @@
                             <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="*"/>
                             <DataGridTextColumn Binding="{Binding Today.Balance, StringFormat={}{0:C2}}" Header="Balance" Width="*"/>
                         </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
+                                <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
                     </DataGrid>
                 </DockPanel>
             </Border>
             <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="1"/>
-            <Border Grid.Column="2" BorderThickness="1" BorderBrush="#FF688CAF" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
-				<DockPanel>
-					<Label DockPanel.Dock="Top" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">Account Balance Sheet</Label>
-					<ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked ="True" Background="{x:Null}" >
-						<Button x:Name="ToolButton_Charge_New" Style="{StaticResource ButtonContextMenu}">New Entry
-							<Button.ContextMenu>
-								<ContextMenu>
-									<MenuItem Header="New Charge" Name="MenuItem_BalanceSheet_NewCharge2" Click="OnMenuClick"/>
-									<MenuItem Header="New Balance Override" Name="MenuItem_BalanceSheet_NewBalanceOverride2" Click="OnMenuClick"/>
-								</ContextMenu>
-							</Button.ContextMenu>
-						</Button>
-						<Separator/>
-						<Button x:Name="ToolButton_BalanceSheet_Activate" Click="OnMenuClick">Activate</Button>
-						<Separator/>
-						<Button x:Name="ToolButton_BalanceSheet_Deactivate" Click="OnMenuClick">Deactivate</Button>
-						<Separator/>
-						<Button x:Name="ToolButton_BalanceSheet_Delete" Click="OnMenuClick">Delete</Button>
-					</ToolBar>
-                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="False" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
-						<DataGrid.CellStyle>
-							<Style TargetType="{x:Type DataGridCell}">
-								<Style.Triggers>
-									<DataTrigger Binding="{Binding Type}" Value="Today">
-										<Setter Property="Background" Value="Blue"/>
-										<Setter Property="Foreground" Value="White"/>
-									</DataTrigger>
-									<Trigger Property="IsSelected" Value="True">
-										<Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
-										<Setter Property="Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>
-									</Trigger>
-								</Style.Triggers>
-							</Style>
-						</DataGrid.CellStyle>
-						<DataGrid.Columns>
-							<DataGridCheckBoxColumn x:Name="BalanceEnabledColumn" Binding="{Binding Enabled}" Header="Enabled" CanUserSort="False"/>
-							<DataGridTemplateColumn x:Name="BalanceDateColumn" Header="Date" CanUserSort="False">
-								<DataGridTemplateColumn.CellTemplate>
-									<DataTemplate>
-										<TextBlock Text="{Binding Date, StringFormat=d}"/>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellTemplate>
-								<DataGridTemplateColumn.CellEditingTemplate>
-									<DataTemplate>
-										<DatePicker SelectedDate="{Binding Date}"/>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellEditingTemplate>
-							</DataGridTemplateColumn>
-							<DataGridTextColumn x:Name="BalanceNameColumn" Binding="{Binding Name}" Header="Name" CanUserSort="False"/>
-							<DataGridTextColumn x:Name="BalanceTypeColumn" Binding="{Binding Type}" Header="Type" CanUserSort="False" IsReadOnly="True"/>
-							<DataGridTextColumn x:Name="BalanceAmountColumn" Binding="{Binding Amount, StringFormat={}{0:C2}}" Header="Amount" CanUserSort="False">
-								<DataGridTextColumn.ElementStyle>
-									<Style TargetType="{x:Type TextBlock}">
-										<Setter Property="HorizontalAlignment" Value="Right"/>
-									</Style>
-								</DataGridTextColumn.ElementStyle>
-							</DataGridTextColumn>
-							<DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True" CanUserSort="False" Foreground="Black">
-								<DataGridTextColumn.CellStyle>
-									<Style TargetType="{x:Type DataGridCell}">
-										<Style.Triggers>
-											<DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="True">
-												<Setter Property="Background" Value="#22ff22"/>
-											</DataTrigger>
-											<DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="False">
-												<Setter Property="Background" Value="#ff5555"/>
-											</DataTrigger>
-											<DataTrigger Binding="{Binding Type}" Value="Balance Override">
-												<Setter Property="Background" Value="Yellow"/>
-											</DataTrigger>
-										</Style.Triggers>
-									</Style>
-								</DataGridTextColumn.CellStyle>
-							</DataGridTextColumn>
-							<DataGridTextColumn Width="*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
-						</DataGrid.Columns>
-					</DataGrid>
-				</DockPanel>
-			</Border>
-			<GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="3"/>
-			<Border Grid.Column="4" BorderThickness="1" BorderBrush="#FF688CAF" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
-				<DockPanel>
-					<Label DockPanel.Dock="Top" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Recurring Transactions</Label>
-					<ToolBar DockPanel.Dock="Top" ToolBarTray.IsLocked ="True" Background="{x:Null}" >
-						<Button x:Name="ToolButton_Template_New" Click="OnMenuClick">New</Button>
-						<Separator/>
-						<Button x:Name="ToolButton_Template_Delete" Click="OnMenuClick">Delete</Button>
-					</ToolBar>
-					<StackPanel VerticalAlignment="Top" DockPanel.Dock="Bottom" Orientation="Horizontal">
-						<Label VerticalContentAlignment="Center" HorizontalAlignment="Left">Forecast</Label>
+            <Border Grid.Column="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+                <DockPanel>
+                    <Label DockPanel.Dock="Top" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">Account Balance Sheet</Label>
+                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="False" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Type}" Value="Today">
+                                        <Setter Property="Background" Value="Blue"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
+                                        <Setter Property="Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn x:Name="BalanceEnabledColumn" Binding="{Binding Enabled}" Header="Enabled" CanUserSort="False"/>
+                            <DataGridTemplateColumn x:Name="BalanceDateColumn" Header="Date" CanUserSort="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Date, StringFormat=d}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding Date}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn x:Name="BalanceNameColumn" Binding="{Binding Name}" Header="Name" CanUserSort="False"/>
+                            <DataGridTextColumn x:Name="BalanceTypeColumn" Binding="{Binding Type}" Header="Type" CanUserSort="False" IsReadOnly="True"/>
+                            <DataGridTextColumn x:Name="BalanceAmountColumn" Binding="{Binding Amount, StringFormat={}{0:C2}}" Header="Amount" CanUserSort="False">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True" CanUserSort="False" Foreground="Black">
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="{x:Type DataGridCell}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                <Setter Property="Background" Value="#22ff22"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="False">
+                                                <Setter Property="Background" Value="#ff5555"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Balance Override">
+                                                <Setter Property="Background" Value="Yellow"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Width="*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
+                                <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
+                                <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
+                                <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
+                                <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
+                                <MenuItem Tag="BalanceSheet_ClearAmount" Click="OnMenuClick" Header="Clear Amount"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+            <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="3"/>
+            <Border Grid.Column="4" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+                <DockPanel>
+                    <Label DockPanel.Dock="Top" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Recurring Transactions</Label>
+                    <StackPanel VerticalAlignment="Top" DockPanel.Dock="Bottom" Orientation="Horizontal">
+                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left">Forecast</Label>
                         <local:NumericUpDown x:Name="NumericUpDown_DaysToForecast" Width="75" DecimalPlaces="0" HorizontalAlignment="Left" ValueChanged="NumericUpDown_ValueChanged"/>
-						<Label VerticalContentAlignment="Center" HorizontalAlignment="Left">days into the future.</Label>
-					</StackPanel>
-                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Templates_SelectionChanged">
-						<DataGrid.CellStyle>
-							<Style TargetType="{x:Type DataGridCell}">
-								<Style.Triggers>
-									<Trigger Property="IsSelected" Value="True">
-										<Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
-										<Setter Property="Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>
-									</Trigger>
-								</Style.Triggers>
-							</Style>
-						</DataGrid.CellStyle>
-						<DataGrid.Columns>
-							<DataGridTextColumn Binding="{Binding Name}" Header="Name"/>
-							<DataGridTemplateColumn Header="Date">
-								<DataGridTemplateColumn.CellTemplate>
-									<DataTemplate>
-										<TextBlock Text="{Binding Date, StringFormat=d}"/>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellTemplate>
-								<DataGridTemplateColumn.CellEditingTemplate>
-									<DataTemplate>
-										<DatePicker SelectedDate="{Binding Date}"/>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellEditingTemplate>
-							</DataGridTemplateColumn>
-							<DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource GetEnumValues_RecurrenceInterval}}" SelectedValueBinding="{Binding RecurrenceInterval}" Header="Interval"/>
-							<DataGridTextColumn Binding="{Binding Interval}" Header="Interval Multiple"/>
-							<DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource GetEnumValues_AmountMode}}" SelectedValueBinding="{Binding AmountMode}" Header="Amount Mode"/>
-							<DataGridTextColumn Binding="{Binding PredefinedAmount, StringFormat={}{0:C2}}" Header="Amount">
-								<DataGridTextColumn.ElementStyle>
-									<Style TargetType="{x:Type TextBlock}">
-										<Setter Property="HorizontalAlignment" Value="Right"/>
-									</Style>
-								</DataGridTextColumn.ElementStyle>
-							</DataGridTextColumn>
-							<DataGridTextColumn Width="*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
-						</DataGrid.Columns>
-					</DataGrid>
-				</DockPanel>
-			</Border>
-		</Grid>
-	</DockPanel>
+                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left">days into the future.</Label>
+                    </StackPanel>
+                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{x:Static SystemColors.HighlightBrush}"/>
+                                        <Setter Property="Foreground" Value="{x:Static SystemColors.HighlightTextBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Name}" Header="Name"/>
+                            <DataGridTemplateColumn Header="Start Date">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Date, StringFormat=d}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding Date}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding Interval}" Header="Interval"/>
+                            <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource GetEnumValues_RecurrenceInterval}}" SelectedValueBinding="{Binding RecurrenceInterval}" Header=""/>
+                            <DataGridTextColumn Binding="{Binding PredefinedAmount, StringFormat={}{0:C2}}" Header="Amount">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="{x:Type TextBlock}">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Width="*" IsReadOnly="True" CanUserSort="False"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Tag="Template_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
+                                <MenuItem Tag="Template_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
 </Window>
  

@@ -150,11 +150,6 @@ namespace Budgeter
 			{
 				if (dataGrid_Balance.SelectedItem is Today)
 					e.Cancel = true;
-				else if (dataGrid_Balance.SelectedItem is RecurringCharge)
-				{
-					if (dataGrid_Balance.SelectedItem is RecurringCharge item)
-						e.Cancel = item.Template.AmountMode != AmountModes.Variable;
-				}
 			}
 			else if (e.Column == BalanceBalanceColumn)
 			{
@@ -196,15 +191,23 @@ namespace Budgeter
 
 		private void OnMenuClick(object sender, RoutedEventArgs e)
 		{
-			if (e.Source == MenuItem_New)
+			var menuItem = e.Source as MenuItem;
+			if (menuItem == null)
+				return;
+
+			string? menuItemTag = menuItem.Tag as String;
+			if (menuItemTag == null)
+				return;
+
+			if (menuItemTag == "File_New")
 			{
 				if (System.Windows.MessageBox.Show("Are you sure you want to start a new budget?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
 				{
 					Budgeter = new Budget();
-					CurrentFile = "{untitiled}";
+					CurrentFile = "{untitled}";
 				}
 			}
-			else if (e.Source == MenuItem_Open)
+			else if (menuItemTag == "File_Open")
 			{
 				Microsoft.Win32.OpenFileDialog dialog = new()
 				{
@@ -223,9 +226,9 @@ namespace Budgeter
 					}
 				}
 			}
-			else if (e.Source == MenuItem_Save || e.Source == MenuItem_SaveAs)
+			else if (menuItemTag == "File_Save" || menuItemTag == "File_SaveAs")
 			{
-				if (e.Source == MenuItem_Save && m_CurrentFile != "")
+				if (menuItemTag == "File_Save" && m_CurrentFile != "")
 				{
 					Budgeter.Save(m_CurrentFile);
 					BudgetModified = false;
@@ -248,29 +251,28 @@ namespace Budgeter
 					}
 				}
 			}
-			else if (e.Source == MenuItem_Exit)
+			else if (menuItemTag == "Program_Exit")
 			{
 				Close();
 			}
-
-			else if (e.Source == MenuItem_Refresh)
-			{
-				(dataGrid_Accounts.SelectedItem as Account)?.UpdateEntries();
-				dataGrid_Balance.Items.Refresh();
-				dataGrid_Templates.Items.Refresh();
-			}
-			else if (e.Source == ToolButton_Account_New || e.Source == MenuItem_Account_NewAccount)
+			else if (menuItemTag == "Account_NewAccount")
 			{
 				Budgeter.Accounts.Add(new Account());
 			}
-			else if (e.Source == ToolButton_Account_Delete || e.Source == MenuItem_Account_DeleteAccount)
+			else if (menuItemTag == "Account_DeleteAccount")
 			{
 				if (SelectedAccount != null && System.Windows.MessageBox.Show("Are you sure you want to delete the selected account?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
 				{
 					Budgeter.Accounts.Remove(SelectedAccount);
 				}
 			}
-			else if (e.Source == ToolButton_BalanceSheet_Activate || e.Source == MenuItem_BalanceSheet_Activate)
+			else if (menuItemTag == "BalanceSheet_Refresh")
+			{
+				(dataGrid_Accounts.SelectedItem as Account)?.UpdateEntries();
+				dataGrid_Balance.Items.Refresh();
+				dataGrid_Templates.Items.Refresh();
+			}
+			else if (menuItemTag == "BalanceSheet_Activate")
 			{
 				foreach (var item in dataGrid_Balance.SelectedItems)
 				{
@@ -279,7 +281,7 @@ namespace Budgeter
 				}
 				dataGrid_Balance.Items.Refresh();
 			}
-			else if (e.Source == ToolButton_BalanceSheet_Deactivate || e.Source == MenuItem_BalanceSheet_Deactivate)
+			else if (menuItemTag == "BalanceSheet_Deactivate")
 			{
 				foreach (var item in dataGrid_Balance.SelectedItems)
 				{
@@ -288,8 +290,7 @@ namespace Budgeter
 				}
 				dataGrid_Balance.Items.Refresh();
 			}
-			else if (e.Source == MenuItem_BalanceSheet_NewBalanceOverride || e.Source == MenuItem_BalanceSheet_NewBalanceOverride2 ||
-				e.Source == MenuItem_BalanceSheet_NewCharge || e.Source == MenuItem_BalanceSheet_NewCharge2)
+			else if (menuItemTag == "BalanceSheet_NewBalanceOverride" || menuItemTag == "BalanceSheet_NewCharge")
 			{
 				if (SelectedAccount != null)
 				{
@@ -302,14 +303,14 @@ namespace Budgeter
 					if (index >= 0 && index < SelectedAccount.Entries.Count)
 						date = SelectedAccount.Entries[index].Date;
 
-					if (e.Source == MenuItem_BalanceSheet_NewCharge || e.Source == MenuItem_BalanceSheet_NewCharge2)
+					if (menuItemTag == "BalanceSheet_NewCharge")
 					{
 						var newVal = new Charge() { Date = date };
 						SelectedAccount.Charges.Add(newVal);
 						dataGrid_Balance.SelectedItem = newVal;
 						dataGrid_Balance.Focus();
 					}
-					if (e.Source == MenuItem_BalanceSheet_NewBalanceOverride || e.Source == MenuItem_BalanceSheet_NewBalanceOverride2)
+					if (menuItemTag == "BalanceSheet_NewBalanceOverride")
 					{
 						var newVal = new Override() { Date = date };
 						SelectedAccount.BalanceOverrides.Add(newVal);
@@ -318,25 +319,30 @@ namespace Budgeter
 					}
 				}
 			}
-			else if (e.Source == MenuItem_BalanceSheet_Delete || e.Source == ToolButton_BalanceSheet_Delete)
+			else if (menuItemTag == "BalanceSheet_Delete")
 			{
 				List<Object> items = new();
-
-				bool canDelete = true;
-
+				HashSet<string> messages = new();
 				foreach (var item in dataGrid_Balance.SelectedItems)
 				{
-					if (item is not Override || item is not Charge)
-						canDelete = false;
+					var entry = item as BudgetEntry;
 
-					items.Add(item);
+					if (entry == null)
+						continue;
+					else if (item is Today)
+					{ }
+					else
+					{
+						messages.Add(entry.Name);
+						items.Add(item);
+					}
 				}
 
-				if(!canDelete)
-				{
-					System.Windows.MessageBox.Show("One or more of the selected entries cannot be deleted?", "Error", System.Windows.MessageBoxButton.OK);
-				}
-				else if (items.Count > 0 && System.Windows.MessageBox.Show("Are you sure you want to delete the selected entries?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+				string message = "";
+				foreach (var item in messages)
+					message += (message.Length != 0 ? ", " : "") + item;
+
+				if (items.Count > 0 && System.Windows.MessageBox.Show("Are you sure you want to delete the selected entries?\n\n" + message, "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
 				{
 					if (SelectedAccount != null)
 					{
@@ -346,11 +352,27 @@ namespace Budgeter
 								SelectedAccount.BalanceOverrides.Remove(overrideItem);
 							else if (item is Charge chargeItem)
 								SelectedAccount.Charges.Remove(chargeItem);
+							else if (item is RecurringCharge recurring)
+								SelectedAccount.Entries.Remove(recurring);
 						}
 					}
 				}
 			}
-			else if (e.Source == MenuItem_Template_New || e.Source == ToolButton_Template_New)
+			else if (menuItemTag == "BalanceSheet_ResetAmount")
+			{
+				foreach (var item in dataGrid_Balance.SelectedItems)
+				{
+					if (item is RecurringCharge charge)
+						charge.ResetAmount();
+					else if(item is BudgetEntry entry)
+						entry.Amount = null;
+				}
+				dataGrid_Balance.Items.Refresh();
+				dataGrid_Accounts.Items.Refresh();
+
+				BudgetModified = true;
+			}
+			else if (menuItemTag == "RecurringTransactions_New")
 			{
 				RecurringChargeTemplate val = new()
 				{
@@ -361,23 +383,36 @@ namespace Budgeter
 				dataGrid_Templates.SelectedItem = val;
 				dataGrid_Templates.Focus();
 			}
-			else if (e.Source == MenuItem_Template_Delete || e.Source == ToolButton_Template_Delete)
+			else if (menuItemTag == "RecurringTransactions_Delete")
 			{
-				if (SelectedAccount != null && System.Windows.MessageBox.Show("Are you sure you want to delete the selected entries?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+				List<RecurringChargeTemplate> items = new();
+				HashSet<string> messages = new();
+				foreach (var item in dataGrid_Templates.SelectedItems)
 				{
-					List<Object> items = new();
+					var entry = item as RecurringChargeTemplate;
 
-					foreach (var item in dataGrid_Templates.SelectedItems)
-						items.Add(item);
-
-					foreach (var item in items)
+					if (entry == null)
+						continue;
+					else
 					{
-						if (item is RecurringChargeTemplate recurringCharge)
-							SelectedAccount.RecurringChargeTemplates.Remove(recurringCharge);
+						messages.Add(entry.Name);
+						items.Add(entry);
+					}
+				}
+
+				string message = "";
+				foreach (var item in messages)
+					message += (message.Length != 0 ? ", " : "") + item;
+
+				if (SelectedAccount != null && System.Windows.MessageBox.Show("Are you sure you want to delete the selected entries?\n\n" + message, "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+				{
+					foreach (RecurringChargeTemplate item in items)
+					{
+						SelectedAccount.RecurringChargeTemplates.Remove(item);
 					}
 				}
 			}
-			else
+			else if (menuItemTag == "About")
 			{
 				bool isWindowOpen = false;
 

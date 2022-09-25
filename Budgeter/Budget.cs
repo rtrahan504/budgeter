@@ -13,18 +13,13 @@ namespace Budgeter
 		Days,
 		Months
 	}
-	public enum AmountModes
-	{
-		Predefined,
-		Variable
-	}
 
 
 	[Serializable]
 	public abstract class BudgetEntry
 	{
 		public bool Enabled { get; set; }
-		public virtual String Name { get; }
+		public virtual String Name { get; protected set; }
 		public abstract String Type { get; }
 		public virtual DateTime Date { get; protected set; }
 		public virtual double? Amount { get; set; }
@@ -53,7 +48,6 @@ namespace Budgeter
 	[Serializable]
 	public class Today : BudgetEntry
 	{
-		public override String Name { get { return ""; } }
 		public override String Type { get { return "Today"; } }
 		public override DateTime Date { get { return DateTime.Now; } }
 	}
@@ -63,8 +57,8 @@ namespace Budgeter
 	{
 		public new String Name
 		{
-			get { return m_Name; }
-			set { m_Name = value; }
+			get => base.Name;
+			set => base.Name = value;
 		}
 		public override String Type { get { return "Balance Override"; } }
 
@@ -91,9 +85,8 @@ namespace Budgeter
 		public Override()
 		{
 			Date = DateTime.Now;
+			Name = "{new override}";
 		}
-
-		String m_Name = "{new override}";
 	}
 
 	[Serializable]
@@ -101,8 +94,8 @@ namespace Budgeter
 	{
 		public new String Name
 		{
-			get { return m_Name; }
-			set { m_Name = value; }
+			get => base.Name;
+			set => base.Name = value;
 		}
 		public override String Type { get { return "Charge"; } }
 		public new DateTime Date
@@ -115,8 +108,6 @@ namespace Budgeter
 		{
 			Date = DateTime.Now;
 		}
-
-		String m_Name = "{new charge}";
 	}
 
 	[Serializable]
@@ -128,8 +119,6 @@ namespace Budgeter
 		public RecurrenceIntervals RecurrenceInterval { get; set; }
 
 		public UInt32 Interval { get; set; }
-
-		public AmountModes AmountMode { get; set; }
 		public double PredefinedAmount { get; set; }
 
 		public List<RecurringCharge> GetRecurringCharges(int daysToForecast)
@@ -169,25 +158,22 @@ namespace Budgeter
 		{
 			Name = "";
 			Date = DateTime.Now;
-			AmountMode = AmountModes.Predefined;
 			PredefinedAmount = 0;
 			RecurrenceInterval = RecurrenceIntervals.None;
 			Interval = 0;
 		}
-		public RecurringChargeTemplate(String name, DateTime date, AmountModes amountMode, double predefinedAmount)
+		public RecurringChargeTemplate(String name, DateTime date, double predefinedAmount)
 		{
 			Name = name;
 			Date = date;
-			AmountMode = amountMode;
 			PredefinedAmount = predefinedAmount;
 			RecurrenceInterval = RecurrenceIntervals.None;
 			Interval = 0;
 		}
-		public RecurringChargeTemplate(String name, DateTime date, AmountModes amountMode, double predefinedAmount, RecurrenceIntervals recurrenceInterval, UInt32 interval)
+		public RecurringChargeTemplate(String name, DateTime date, double predefinedAmount, RecurrenceIntervals recurrenceInterval, UInt32 interval)
 		{
 			Name = name;
 			Date = date;
-			AmountMode = amountMode;
 			PredefinedAmount = predefinedAmount;
 			RecurrenceInterval = recurrenceInterval;
 			Interval = interval;
@@ -220,21 +206,19 @@ namespace Budgeter
 			{
 				if (!Enabled)
 					return null;
-				else if (Template.AmountMode == AmountModes.Predefined)
-					return Template.PredefinedAmount;
 				else
 					return definedAmount;
 			}
 			set
 			{
-				if (Template.AmountMode == AmountModes.Predefined && value.HasValue)
-					Template.PredefinedAmount = value.GetValueOrDefault(0);
-				else
-					definedAmount = value == 0 ? null : value;
+				definedAmount = value == 0 ? null : value;
 			}
 		}
 
-
+		public void ResetAmount()
+		{
+			definedAmount = Template.PredefinedAmount;
+		}
 
 		public RecurringCharge()
 		{
@@ -245,6 +229,7 @@ namespace Budgeter
 		{
 			Template = template;
 			Index = index;
+			ResetAmount();
 		}
 
 		double? definedAmount = null;
