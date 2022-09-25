@@ -1,4 +1,5 @@
 ﻿<Window x:Class="Budgeter.MainWindow"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,93 +7,75 @@
         xmlns:local="clr-namespace:Budgeter"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="{Binding DynamicTitle, RelativeSource={RelativeSource Mode=Self}}" 
+        Title="{Binding DynamicTitle, RelativeSource={RelativeSource Mode=Self}}"
         Height="550" Width="900" 
-        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
         Closing="Window_Closing" 
-        SourceInitialized="Window_SourceInitialized">
+        SourceInitialized="Window_SourceInitialized"
+        Foreground="{DynamicResource Foreground}"
+        Background="{DynamicResource Background}">
     <Window.Resources>
-        <Image x:Key="Icon_NewFile" Source="Icons/NewFile_16x.png"/>
-        <Image x:Key="Icon_OpenFile" Source="Icons/OpenFile_16x.png"/>
-        <Image x:Key="Icon_Save" Source="Icons/Save_16x.png"/>
-        <Image x:Key="Icon_SaveAs" Source="Icons/SaveAs_16x.png"/>
-        <Image x:Key="Icon_Exit" Source="Icons/Exit_16x.png"/>
-        <Image x:Key="Icon_Refresh" Source="Icons/Refresh_16x.png"/>
-        <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="GetEnumValues_RecurrenceInterval">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:RecurrenceIntervals"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <local:DoublePositive x:Key="DoublePositive"/>
-        <Style x:Key="VerticalSeparatorStyle" TargetType="{x:Type Separator}" BasedOn="{StaticResource {x:Type Separator}}">
-            <Setter Property="Margin" Value="6,0,6,0"/>
-            <Setter Property="LayoutTransform">
-                <Setter.Value>
-                    <TransformGroup>
-                        <TransformGroup.Children>
-                            <TransformCollection>
-                                <RotateTransform Angle="90"/>
-                            </TransformCollection>
-                        </TransformGroup.Children>
-                    </TransformGroup>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="ButtonContextMenu" TargetType="{x:Type Button}">
-            <Style.Triggers>
-                <EventTrigger RoutedEvent="Click">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="ContextMenu.IsOpen">
-                                    <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
-                                </BooleanAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
-                </EventTrigger>
-            </Style.Triggers>
-            <Setter Property="ContextMenu">
-                <Setter.Value>
-                    <ContextMenu>
-                        <MenuItem/>
-                        <MenuItem/>
-                    </ContextMenu>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml"/>
+                <ResourceDictionary Source="MainWindowStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="GetEnumValues_RecurrenceInterval">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="local:RecurrenceIntervals"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <local:DoublePositive x:Key="DoublePositive"/>
+        </ResourceDictionary>
+
     </Window.Resources>
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_New" Tag="File_New" Click="OnMenuClick" Icon="{StaticResource Icon_NewFile}"/>
-                <MenuItem Header="_Open..." Tag="File_Open" Click="OnMenuClick" InputGestureText="Ctrl+O" Icon="{StaticResource Icon_OpenFile}"/>
-                <MenuItem Header="_Save" Tag="File_Save" Click="OnMenuClick" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
-                <MenuItem Header="Save As..." Tag="File_SaveAs" Click="OnMenuClick" Icon="{StaticResource Icon_SaveAs}"/>
-                <Separator/>
-                <MenuItem Header="_Exit" Tag="Program_Exit" Click="OnMenuClick" Icon="{StaticResource Icon_Exit}"/>
-            </MenuItem>
-            <MenuItem Header="_Account">
-                <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
-                <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
-            </MenuItem>
-            <MenuItem Header="_Balance Sheet">
-                <MenuItem Tag="BalanceSheet_Refresh" Header="_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
-                <Separator/>
-                <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
-                <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
-                <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
-                <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
-                <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
-                <MenuItem Tag="BalanceSheet_ResetAmount" Click="OnMenuClick" Header="Reset Amount"/>
-            </MenuItem>
-            <MenuItem Header="_Recurring Transactions">
-                <MenuItem Tag="RecurringTransactions_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
-                <MenuItem Tag="RecurringTransactions_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
-            </MenuItem>
-            <MenuItem Header="_About" Tag="About" Click="OnMenuClick"/>
-        </Menu>
-        <Grid Margin="5" Name="Grid_BalanceSheet">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top" Grid.Row="0" Margin="5,5,5,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Menu Grid.Row="0" Grid.Column="0" DockPanel.Dock="Top" Background="{DynamicResource Background}">
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
+                <MenuItem Header="_File">
+                    <MenuItem Header="_New" Tag="File_New" Click="OnMenuClick" Icon="{StaticResource Icon_NewFile}"/>
+                    <MenuItem Header="_Open..." Tag="File_Open" Click="OnMenuClick" InputGestureText="Ctrl+O" Icon="{StaticResource Icon_OpenFile}"/>
+                    <MenuItem Header="_Save" Tag="File_Save" Click="OnMenuClick" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
+                    <MenuItem Header="Save As..." Tag="File_SaveAs" Click="OnMenuClick" Icon="{StaticResource Icon_SaveAs}"/>
+                    <Separator/>
+                    <MenuItem Header="_Exit" Tag="Program_Exit" Click="OnMenuClick" Icon="{StaticResource Icon_Exit}"/>
+                </MenuItem>
+                <MenuItem Header="_Account">
+                    <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
+                    <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                </MenuItem>
+                <MenuItem Header="_Balance Sheet">
+                    <MenuItem Tag="BalanceSheet_Refresh" Header="_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
+                    <Separator/>
+                    <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
+                    <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
+                    <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
+                    <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
+                    <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
+                    <MenuItem Tag="BalanceSheet_ResetAmount" Click="OnMenuClick" Header="Reset Amount"/>
+                </MenuItem>
+                <MenuItem Header="_Recurring Transactions">
+                    <MenuItem Tag="RecurringTransactions_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
+                    <MenuItem Tag="RecurringTransactions_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
+                </MenuItem>
+                <MenuItem Header="_About" Tag="About" Click="OnMenuClick"/>
+            </Menu>
+            <ToggleButton Name="toggleButton_DarkMode" Grid.Row="0" Grid.Column="1" Style="{StaticResource ToggleButtonStyle}" IsChecked="False" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"/>
+        </Grid>
+        <Grid Margin="5" Name="Grid_BalanceSheet" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="5"/>
@@ -101,10 +84,10 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+            <Border Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
                 <DockPanel>
-                    <Label DockPanel.Dock="Top" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">Accounts</Label>
-                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+                    <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Accounts</Label>
+                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" SelectionUnit="FullRow" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
 
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
@@ -129,16 +112,16 @@
                     </DataGrid>
                 </DockPanel>
             </Border>
-            <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="1"/>
-            <Border Grid.Column="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+            <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="1" Background="{DynamicResource Background}"/>
+            <Border Grid.Column="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
                 <DockPanel>
-                    <Label DockPanel.Dock="Top" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}">Account Balance Sheet</Label>
-                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="False" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+                    <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Account Balance Sheet</Label>
+                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" Foreground="{DynamicResource Foreground}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="False" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Type}" Value="Today">
-                                        <Setter Property="Background" Value="Blue"/>
+                                        <Setter Property="Background" Value="#000055"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
                                     <Trigger Property="IsSelected" Value="True">
@@ -171,18 +154,21 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True" CanUserSort="False" Foreground="Black">
+                            <DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True" CanUserSort="False">
                                 <DataGridTextColumn.CellStyle>
                                     <Style TargetType="{x:Type DataGridCell}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="True">
-                                                <Setter Property="Background" Value="#22ff22"/>
+                                                <Setter Property="Background" Value="#007700"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Balance, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="False">
-                                                <Setter Property="Background" Value="#ff5555"/>
+                                                <Setter Property="Background" Value="#770000"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="Balance Override">
-                                                <Setter Property="Background" Value="Yellow"/>
+                                                <Setter Property="Background" Value="#777700"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -203,16 +189,16 @@
                     </DataGrid>
                 </DockPanel>
             </Border>
-            <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="3"/>
-            <Border Grid.Column="4" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.MenuBrushKey}}">
+            <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="3" Background="{DynamicResource Background}"/>
+            <Border Grid.Column="4" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
                 <DockPanel>
-                    <Label DockPanel.Dock="Top" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}">Recurring Transactions</Label>
-                    <StackPanel VerticalAlignment="Top" DockPanel.Dock="Bottom" Orientation="Horizontal">
-                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left">Forecast</Label>
-                        <local:NumericUpDown x:Name="NumericUpDown_DaysToForecast" Width="75" DecimalPlaces="0" HorizontalAlignment="Left" ValueChanged="NumericUpDown_ValueChanged"/>
-                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left">days into the future.</Label>
+                    <Label DockPanel.Dock="Top" Background="{DynamicResource CloseButtonBackgroundPressed}" Foreground="{DynamicResource Foreground}">Recurring Transactions</Label>
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Height="40">
+                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource Foreground}">Forecast recurring transactions</Label>
+                        <local:NumericUpDown x:Name="NumericUpDown_DaysToForecast" Width="75" DecimalPlaces="0" HorizontalAlignment="Left" ValueChanged="NumericUpDown_ValueChanged" VerticalContentAlignment="Center"/>
+                        <Label VerticalContentAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource Foreground}">days into the future.</Label>
                     </StackPanel>
-                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column">
+                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
@@ -258,6 +244,6 @@
                 </DockPanel>
             </Border>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Window>
  

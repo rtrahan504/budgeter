@@ -414,22 +414,17 @@ namespace Budgeter
 			}
 			else if (menuItemTag == "About")
 			{
-				bool isWindowOpen = false;
+				About newwindow = new();
+				newwindow.Owner = this;
 
-				foreach (Window window in Application.Current.Windows)
+				if (toggleButton_DarkMode.IsChecked == false)
 				{
-					if (window is About)
-					{
-						isWindowOpen = true;
-						window.Activate();
-					}
+					var rd = new System.Windows.ResourceDictionary();
+					rd.Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
+					newwindow.Resources.MergedDictionaries.Add(rd);
 				}
 
-				if (!isWindowOpen)
-				{
-					About newwindow = new();
-					newwindow.Show();
-				}
+				newwindow.ShowDialog();
 			}
 		}
 
@@ -448,6 +443,7 @@ namespace Budgeter
 				key.SetValue("WindowY", Top);
 				key.SetValue("AccountSplitter", Grid_BalanceSheet.ColumnDefinitions[0].Width.Value.ToString());
 				key.SetValue("BalanceSheetSplitter", (Grid_BalanceSheet.ColumnDefinitions[2].Width.Value / Grid_BalanceSheet.ColumnDefinitions[4].Width.Value).ToString());
+				key.SetValue("ColorMode", toggleButton_DarkMode.IsChecked == true ? "Light" : "Dark");
 			}
 			catch
 			{ }
@@ -490,6 +486,8 @@ namespace Budgeter
 				if (Double.TryParse(key.GetValue("BalanceSheetSplitter") as string, out val))
 					Grid_BalanceSheet.ColumnDefinitions[2].Width = new GridLength(val, GridUnitType.Star);
 
+				toggleButton_DarkMode.IsChecked = key.GetValue("ColorMode")?.ToString() == "Light";
+
 				var newBudget = Budget.Load(file);
 				if (newBudget != null)
 				{
@@ -510,6 +508,28 @@ namespace Budgeter
 		{
 			if(SelectedAccount != null)
 				SelectedAccount.DaysToForecast = (int)e.NewValue;
+		}
+
+		private void ToggleButton_Checked(object sender, RoutedEventArgs e)
+		{
+			foreach (var dict in Resources.MergedDictionaries)
+			{
+				if (dict != null && dict.Source.OriginalString == "pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+				{
+					Resources.MergedDictionaries.Remove(dict);
+
+					UpdateLayout();
+
+					break;
+				}
+			}
+		}
+
+		private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+		{
+			var rd = new System.Windows.ResourceDictionary();
+			rd.Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
+			Resources.MergedDictionaries.Add(rd);
 		}
 	}
 	public class DoublePositive : IValueConverter

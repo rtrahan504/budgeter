@@ -6,7 +6,51 @@
   <Nullable>enable</Nullable>
   <UseWPF>true</UseWPF>
   <StartupObject>Budgeter.App</StartupObject>
+  <PublishSingleFile Condition="'$(Configuration)' == 'Debug'">false</PublishSingleFile>
+  <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+  <SelfContained>true</SelfContained>
+  <PublishReadyToRun>true</PublishReadyToRun>
+  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  <Platforms>x64</Platforms>
+  <AssemblyVersion>1.0.0.1</AssemblyVersion>
  </PropertyGroup>
+
+ <ItemGroup>
+   <Compile Remove="App.xml.cs" />
+ </ItemGroup>
+
+ <ItemGroup>
+   <None Remove="lib\MahApps.Metro.dll" />
+   <None Remove="lib\Selen.Wpf.Core.dll" />
+   <None Remove="lib\Selen.Wpf.GenericAppTree.Contracts.dll" />
+   <None Remove="lib\Selen.Wpf.GenericAppTree.dll" />
+   <None Remove="lib\Selen.Wpf.SystemStyles.dll" />
+   <None Remove="lib\System.Windows.Interactivity.dll" />
+   <None Remove="MahApps.Metro.dll" />
+   <None Remove="Selen.Wpf.Core.dll" />
+   <None Remove="Selen.Wpf.GenericAppTree.Contracts.dll" />
+   <None Remove="Selen.Wpf.GenericAppTree.dll" />
+   <None Remove="Selen.Wpf.SystemStyles.dll" />
+   <None Remove="System.Windows.Interactivity.dll" />
+ </ItemGroup>
+
+ <ItemGroup>
+   <EmbeddedResource Include="lib\MahApps.Metro.dll">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="lib\Selen.Wpf.Core.dll">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="lib\Selen.Wpf.GenericAppTree.Contracts.dll">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="lib\Selen.Wpf.GenericAppTree.dll">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </EmbeddedResource>
+   <EmbeddedResource Include="lib\Selen.Wpf.SystemStyles.dll">
+     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+   </EmbeddedResource>
+ </ItemGroup>
  <ItemGroup>
    <Resource Include="Icons\Exit_16x.png">
      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -26,5 +70,29 @@
    <Resource Include="Icons\Save_16x.png">
      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
+ </ItemGroup>
+	
+ <ItemGroup>
+   <Reference Include="MahApps.Metro">
+     <HintPath>lib\MahApps.Metro.dll</HintPath>
+     <Private>True</Private>
+   </Reference>
+   <Reference Include="Selen.Wpf.Core">
+     <HintPath>lib\Selen.Wpf.Core.dll</HintPath>
+     <Private>True</Private>
+   </Reference>
+   <Reference Include="Selen.Wpf.GenericAppTree">
+     <HintPath>lib\Selen.Wpf.GenericAppTree.dll</HintPath>
+   </Reference>
+   <Reference Include="Selen.Wpf.GenericAppTree.Contracts">
+     <HintPath>lib\Selen.Wpf.GenericAppTree.Contracts.dll</HintPath>
+   </Reference>
+   <Reference Include="Selen.Wpf.SystemStyles">
+     <HintPath>lib\Selen.Wpf.SystemStyles.dll</HintPath>
+     <Private>True</Private>
+   </Reference>
+   <Reference Include="System.Windows.Interactivity">
+     <HintPath>lib\System.Windows.Interactivity.dll</HintPath>
+   </Reference>
  </ItemGroup>
 </Project>

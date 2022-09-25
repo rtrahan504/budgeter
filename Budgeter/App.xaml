@@ -3,7 +3,9 @@
 	   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	   xmlns:local="clr-namespace:Budgeter"
 	   StartupUri="MainWindow.xaml">
-  <Application.Resources>
-	 
-  </Application.Resources>
+    <Application.Resources>
+        <SolidColorBrush x:Key="Foreground" Color="{x:Static SystemColors.ControlTextColor}"/>
+        <SolidColorBrush x:Key="Background" Color="{x:Static SystemColors.WindowColor}"/>
+        <SolidColorBrush x:Key="CloseButtonBackgroundPressed" Color="{x:Static SystemColors.ActiveCaptionColor}"/>
+    </Application.Resources>
 </Application>
