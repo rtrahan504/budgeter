@@ -26,6 +26,8 @@
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
             <local:DoublePositive x:Key="DoublePositive"/>
+            <local:DoubleNegative x:Key="DoubleNegative"/>
+            <local:DateConverter x:Key="DateConverter"/>
         </ResourceDictionary>
 
     </Window.Resources>
@@ -88,7 +90,6 @@
                 <DockPanel>
                     <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Accounts</Label>
                     <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" SelectionUnit="FullRow" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
-
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
@@ -116,7 +117,7 @@
             <Border Grid.Column="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
                 <DockPanel>
                     <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Account Balance Sheet</Label>
-                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" Foreground="{DynamicResource Foreground}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="False" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
+                    <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.Entries, Mode=OneWay}" Foreground="{DynamicResource Foreground}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Balance_CellEditEnding" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="True" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
@@ -132,11 +133,11 @@
                             </Style>
                         </DataGrid.CellStyle>
                         <DataGrid.Columns>
-                            <DataGridCheckBoxColumn x:Name="BalanceEnabledColumn" Binding="{Binding Enabled}" Header="Enabled" CanUserSort="False"/>
-                            <DataGridTemplateColumn x:Name="BalanceDateColumn" Header="Date" CanUserSort="False">
+                            <DataGridCheckBoxColumn x:Name="BalanceEnabledColumn" Binding="{Binding Enabled}" Header="Enabled"/>
+                            <DataGridTemplateColumn x:Name="BalanceDateColumn" Header="Date" SortMemberPath="Date">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Date, StringFormat=d}"/>
+                                        <TextBlock Text="{Binding Date, Converter={StaticResource DateConverter}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
@@ -145,16 +146,38 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn x:Name="BalanceNameColumn" Binding="{Binding Name}" Header="Name" CanUserSort="False"/>
-                            <DataGridTextColumn x:Name="BalanceTypeColumn" Binding="{Binding Type}" Header="Type" CanUserSort="False" IsReadOnly="True"/>
-                            <DataGridTextColumn x:Name="BalanceAmountColumn" Binding="{Binding Amount, StringFormat={}{0:C2}}" Header="Amount" CanUserSort="False">
+                            <DataGridTextColumn x:Name="BalanceNameColumn" Binding="{Binding Name}" Header="Name"/>
+                            <DataGridTextColumn x:Name="BalanceTypeColumn" Binding="{Binding Type}" Header="Type" IsReadOnly="True"/>
+                            <DataGridTextColumn x:Name="BalanceAmountColumn" Binding="{Binding Amount, StringFormat={}{0:C2}}" Header="Amount">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="{x:Type TextBlock}">
                                         <Setter Property="HorizontalAlignment" Value="Right"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
+                                <DataGridTextColumn.CellStyle>
+                                    <Style TargetType="{x:Type DataGridCell}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Amount, Converter={StaticResource DoublePositive}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                <Setter Property="Background" Value="#007700"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Amount, Converter={StaticResource DoubleNegative}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                <Setter Property="Background" Value="#770000"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Today">
+                                                <Setter Property="Background" Value="#000055"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Balance Override">
+                                                <Setter Property="Background" Value="#777700"/>
+                                                <Setter Property="Foreground" Value="#ffffff"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
                             </DataGridTextColumn>
-                            <DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True" CanUserSort="False">
+                            <DataGridTextColumn x:Name="BalanceBalanceColumn" Binding="{Binding Balance, StringFormat={}{0:C2}}" Header="Balance" IsReadOnly="True">
                                 <DataGridTextColumn.CellStyle>
                                     <Style TargetType="{x:Type DataGridCell}">
                                         <Style.Triggers>
@@ -211,10 +234,10 @@
                         </DataGrid.CellStyle>
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Name}" Header="Name"/>
-                            <DataGridTemplateColumn Header="Start Date">
+                            <DataGridTemplateColumn Header="Start Date" SortMemberPath="Date">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Date, StringFormat=d}"/>
+                                        <TextBlock Text="{Binding Date, Converter={StaticResource DateConverter}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>

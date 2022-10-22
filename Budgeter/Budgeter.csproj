@@ -12,7 +12,7 @@
   <PublishReadyToRun>true</PublishReadyToRun>
   <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   <Platforms>x64</Platforms>
-  <AssemblyVersion>1.0.0.1</AssemblyVersion>
+  <AssemblyVersion>1.0.0.2</AssemblyVersion>
  </PropertyGroup>
 
  <ItemGroup>
