@@ -1,368 +1,91 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Budgeter
 {
-	public enum RecurrenceIntervals
+	public class Budget : INotifyPropertyChanged, IJsonOnDeserialized
 	{
-		None,
-		Days,
-		Months
-	}
+		public ObservableCollection<Account> Accounts { get { return m_Accounts; } set { m_Accounts = value; } }
 
-
-	[Serializable]
-	public abstract class BudgetEntry
-	{
-		public bool Enabled { get; set; }
-		public virtual String Name { get; protected set; }
-		public abstract String Type { get; }
-		public virtual DateTime Date { get; protected set; }
-		public virtual double? Amount { get; set; }
-		public virtual double Balance
+		public double AccountsTotal
 		{
 			get
 			{
-				if (Predecessor == null)
-					return Enabled ? (Amount ?? 0) : 0;
-				else
-					return Predecessor.Balance + (Enabled ? (Amount ?? 0) : 0);
+				double ret = 0;
+				foreach (var account in Accounts)
+					ret += account.Balance;
+				return ret;
 			}
 		}
 
-
-		public BudgetEntry? Predecessor { get; set; }
-
-		protected BudgetEntry()
+		
+		public event PropertyChangedEventHandler? PropertyChanged;
+		void OnPropertyChanged(string propertyName)
 		{
-			Enabled = true;
-			Name = "";
-			Predecessor = null;
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
-	}
-
-	[Serializable]
-	public class Today : BudgetEntry
-	{
-		public override String Type { get { return "Today"; } }
-		public override DateTime Date { get { return DateTime.Now; } }
-	}
-
-	[Serializable]
-	public class Override : BudgetEntry
-	{
-		public new String Name
-		{
-			get => base.Name;
-			set => base.Name = value;
-		}
-		public override String Type { get { return "Balance Override"; } }
-
-		public new DateTime Date
-		{
-			get => base.Date;
-			set => base.Date = value;
-		}
-		public override double Balance
-		{
-			get
-			{
-				if (Enabled)
-				{
-					return Amount.GetValueOrDefault(0.0);
-				}
-				else
-				{
-					return base.Balance;
-				}
-			}
-		}
-
-		public Override()
-		{
-			Date = DateTime.Now;
-			Name = "{new override}";
-		}
-	}
-
-	[Serializable]
-	public class Charge : BudgetEntry
-	{
-		public new String Name
-		{
-			get => base.Name;
-			set => base.Name = value;
-		}
-		public override String Type { get { return "Charge"; } }
-		public new DateTime Date
-		{
-			get => base.Date;
-			set => base.Date = value;
-		}
-
-		public Charge()
-		{
-			Date = DateTime.Now;
-		}
-	}
-
-	[Serializable]
-	public class RecurringChargeTemplate
-	{
-		public String Name { get; set; }
-		public DateTime Date { get; set; }
-
-		public RecurrenceIntervals RecurrenceInterval { get; set; }
-
-		public UInt32 Interval { get; set; }
-		public double PredefinedAmount { get; set; }
-
-		public List<RecurringCharge> GetRecurringCharges(int daysToForecast)
-		{
-			if (RecurrenceInterval == RecurrenceIntervals.None || Interval == 0 || Date.Year < 2000)
-			{
-				if (m_RecurringCharges.Count != 1)
-				{
-					m_RecurringCharges.Clear();
-					m_RecurringCharges.Add(new RecurringCharge(this, 0));
-				}
-			}
-			else
-			{
-				var endDate = DateTime.Now.AddDays(daysToForecast);
-
-				var oldCharges = m_RecurringCharges.ToList();
-
-				m_RecurringCharges.Clear();
-				for (UInt32 index = 0; true; ++index)
-				{
-					var newCharge = new RecurringCharge(this, index);
-					var reuseCharge = oldCharges.Find((val) => DateOnly.FromDateTime(val.Date) == DateOnly.FromDateTime(newCharge.Date));
-					var charge = reuseCharge ?? newCharge;
-
-					if (charge.Date < endDate)
-						m_RecurringCharges.Add(charge);
-					else
-						break;
-				}
-			}
-
-			return m_RecurringCharges;
-		}
-
-		public RecurringChargeTemplate()
-		{
-			Name = "";
-			Date = DateTime.Now;
-			PredefinedAmount = 0;
-			RecurrenceInterval = RecurrenceIntervals.None;
-			Interval = 0;
-		}
-		public RecurringChargeTemplate(String name, DateTime date, double predefinedAmount)
-		{
-			Name = name;
-			Date = date;
-			PredefinedAmount = predefinedAmount;
-			RecurrenceInterval = RecurrenceIntervals.None;
-			Interval = 0;
-		}
-		public RecurringChargeTemplate(String name, DateTime date, double predefinedAmount, RecurrenceIntervals recurrenceInterval, UInt32 interval)
-		{
-			Name = name;
-			Date = date;
-			PredefinedAmount = predefinedAmount;
-			RecurrenceInterval = recurrenceInterval;
-			Interval = interval;
-		}
-
-		private List<RecurringCharge> m_RecurringCharges = new();
-	}
-	[Serializable]
-	public class RecurringCharge : BudgetEntry
-	{
-		public RecurringChargeTemplate Template { get; private set; }
-		public UInt32 Index { get; private set; }
-		public override String Name { get { return Template.Name; } }
-		public override String Type { get { return "Recurring"; } }
-		public override DateTime Date
-		{
-			get
-			{
-				if (Template.RecurrenceInterval == RecurrenceIntervals.Days)
-					return Template.Date.AddDays((int)(Index * Template.Interval));
-				else if (Template.RecurrenceInterval == RecurrenceIntervals.Months)
-					return Template.Date.AddMonths((int)(Index * Template.Interval));
-				else
-					return Template.Date;
-			}
-		}
-		public override double? Amount
-		{
-			get
-			{
-				if (!Enabled)
-					return null;
-				else
-					return definedAmount;
-			}
-			set
-			{
-				definedAmount = value == 0 ? null : value;
-			}
-		}
-
-		public void ResetAmount()
-		{
-			definedAmount = Template.PredefinedAmount;
-		}
-
-		public RecurringCharge()
-		{
-			Template = new RecurringChargeTemplate();
-			Index = 0;
-		}
-		public RecurringCharge(RecurringChargeTemplate template, UInt32 index)
-		{
-			Template = template;
-			Index = index;
-			ResetAmount();
-		}
-
-		double? definedAmount = null;
-	}
-
-
-	[Serializable]
-	public class Budget
-	{
-
-		public ObservableCollection<Account> Accounts { get; private set; }
 
 
 		public void Save(String filename)
 		{
-			using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
+			JsonSerializerOptions options = new()
 			{
-				var formatter = new BinaryFormatter();
-				formatter.Serialize(stream, this);
+				IgnoreReadOnlyFields = true, 
+				IgnoreReadOnlyProperties = true,
+				WriteIndented = true
 			};
+			string jsonString = JsonSerializer.Serialize(this, options);
+			File.WriteAllText(filename, jsonString);
 		}
 
 		public static Budget? Load(String filename)
 		{
-			Budget? tmpBudget = null;
-
-			try
-			{
-				using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
-				{
-					var formatter = new BinaryFormatter();
-					tmpBudget = formatter.Deserialize(stream) as Budget;
-					if (tmpBudget != null)
-					{
-						foreach (var account in tmpBudget.Accounts)
-						{
-							account.RecurringChargeTemplates.CollectionChanged += account.OnCollectionChanged;
-							account.BalanceOverrides.CollectionChanged += account.OnCollectionChanged;
-							account.Charges.CollectionChanged += account.OnCollectionChanged;
-						}
-					}
-				};
-			}
-			catch
-			{
-				return null;
-			}
-
-
-			return tmpBudget;
+			string jsonString = File.ReadAllText(filename);
+			var ret = JsonSerializer.Deserialize<Budget>(jsonString);
+			return ret;
 		}
 
 		public Budget()
 		{
-			Accounts = new ObservableCollection<Account>();
-		}
-	}
-
-
-	[Serializable]
-	public class Account
-	{
-		public Today Today { get; private set; }
-		public String Name { get; set; }
-		public ObservableCollection<RecurringChargeTemplate> RecurringChargeTemplates { get; set; }
-		public ObservableCollection<Override> BalanceOverrides { get; set; }
-		public ObservableCollection<Charge> Charges { get; set; }
-		public ObservableCollection<BudgetEntry> Entries { get; set; }
-		public int DaysToForecast
-		{
-			get { return m_DaysToForecast; }
-			set { m_DaysToForecast = value; UpdateEntries(); }
+			m_Accounts.CollectionChanged += Accounts_CollectionChanged;
 		}
 
-
-		public Account()
+		public void OnDeserialized()
 		{
-			Today = new Today();
-			Name = "{new account}";
-			RecurringChargeTemplates = new ObservableCollection<RecurringChargeTemplate>();
-			BalanceOverrides = new ObservableCollection<Override>();
-			Charges = new ObservableCollection<Charge>();
-			Entries = new ObservableCollection<BudgetEntry>();
+			m_Accounts ??= new();
+			m_Accounts.CollectionChanged += Accounts_CollectionChanged;
 
-			RecurringChargeTemplates.CollectionChanged += OnCollectionChanged;
-			BalanceOverrides.CollectionChanged += OnCollectionChanged;
-			Charges.CollectionChanged += OnCollectionChanged;
+			Accounts_CollectionChanged(null, new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Add, m_Accounts));
 		}
 
-		public void OnCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		void Account_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
-			UpdateEntries();
-		}
-
-		public void UpdateEntries()
-		{
-			if (Today == null)
-				Today = new();
-
-			List<BudgetEntry> tmpList = new()
+			// Propagate the balance change from the account entry to the account
+			if (e.PropertyName == nameof(Account.Balance))
 			{
-				Today
-			};
+				OnPropertyChanged(nameof(AccountsTotal));
+			}
+		}
+		void Accounts_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			OnPropertyChanged(nameof(AccountsTotal));
 
-			foreach (var item in BalanceOverrides)
-				tmpList.Add(item);
-			foreach (var item in Charges)
-				tmpList.Add(item);
-			foreach (RecurringChargeTemplate chargeTemplate in RecurringChargeTemplates)
-				tmpList.AddRange(chargeTemplate.GetRecurringCharges(m_DaysToForecast));
-
-			tmpList.Sort((lhs, rhs) =>
+			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add && e.NewItems != null)
 			{
-				if (rhs.Date != lhs.Date)
-					return rhs.Date.CompareTo(lhs.Date);
-				else if (rhs.Amount.HasValue && lhs.Amount.HasValue)
-					return lhs.Amount.Value.CompareTo(rhs.Amount.Value);
-				else
-					return 0;
-			});
-
-			Entries.Clear();
-			BudgetEntry? previous = null;
-			for (int i = tmpList.Count; i > 0; --i)
-			{
-				var entry = tmpList[i - 1];
-				entry.Predecessor = previous;
-				previous = entry;
-
-				Entries.Insert(0, entry);
+				foreach (var item in e.NewItems)
+				{
+					if (item is Account account)
+					{
+						account.PropertyChanged += Account_PropertyChanged;
+					}
+				}
 			}
 		}
 
-		int m_DaysToForecast = 62;
+		ObservableCollection<Account> m_Accounts = new();
 	}
 }

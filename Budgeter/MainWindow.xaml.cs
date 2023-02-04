@@ -30,6 +30,32 @@ namespace Budgeter
 				}
 			}
 		}
+		Account? SelectedAccount { get { return dataGrid_Accounts.SelectedItem as Account; } }
+
+		Budget m_Budgeter;
+		Budget Budgeter
+		{
+			get { return m_Budgeter; }
+			set
+			{
+				if (m_Budgeter != value)
+					BudgetModified = false;
+
+				m_Budgeter = value;
+
+				dataGrid_Accounts.ItemsSource = m_Budgeter.Accounts;
+				dataGrid_Accounts.SelectedIndex = 0;
+
+				m_Budgeter.PropertyChanged += M_Budgeter_PropertyChanged;
+
+				label_AccountTotal.SetBinding(Label.ContentProperty, new Binding(nameof(Budget.AccountsTotal)) { Source = m_Budgeter });
+			}
+		}
+
+		private void M_Budgeter_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			BudgetModified = true;
+		}
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -63,32 +89,16 @@ namespace Budgeter
 			}
 		}
 
-		Budget m_Budgeter;
-		Budget Budgeter
-		{
-			get { return m_Budgeter; }
-			set
-			{
-				if (m_Budgeter != value)
-					BudgetModified = false;
-
-				m_Budgeter = value;
-
-				dataGrid_Accounts.ItemsSource = m_Budgeter.Accounts;
-				dataGrid_Accounts.SelectedIndex = 0;
-			}
-		}
-
-		Account? SelectedAccount { get { return dataGrid_Accounts.SelectedItem as Account; } }
 
 		public MainWindow()
 		{
-			InitializeComponent();
-
 			m_CurrentFile = "{untitled}";
 			NotifyPropertyChanged(nameof(DynamicTitle));
 
 			m_Budgeter = new();
+
+			InitializeComponent();
+
 			Budgeter = m_Budgeter;
 		}
 
@@ -218,38 +228,24 @@ namespace Budgeter
 
 				if (dialog.ShowDialog() == true)
 				{
-					var newBudget = Budget.Load(dialog.FileName);
-					if (newBudget != null)
+					try
 					{
-						Budgeter = newBudget;
-						CurrentFile = dialog.FileName;
+						var newBudget = Budget.Load(dialog.FileName);
+						if (newBudget != null)
+						{
+							Budgeter = newBudget;
+							CurrentFile = dialog.FileName;
+						}
+					}
+					catch(Exception ex)
+					{
+						MessageBox.Show("An error occurred.\n" + ex.Message, "Error", MessageBoxButton.OK);
 					}
 				}
 			}
 			else if (menuItemTag == "File_Save" || menuItemTag == "File_SaveAs")
 			{
-				if (menuItemTag == "File_Save" && m_CurrentFile != "")
-				{
-					Budgeter.Save(m_CurrentFile);
-					BudgetModified = false;
-				}
-				else
-				{
-					Microsoft.Win32.SaveFileDialog dialog = new()
-					{
-						FileName = "Budget", // Default file name
-						DefaultExt = ".bgt", // Default file extension
-						Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
-					};
-
-					if (dialog.ShowDialog() == true)
-					{
-						Budgeter.Save(dialog.FileName);
-						BudgetModified = false;
-
-						CurrentFile = dialog.FileName;
-					}
-				}
+				SaveBudget(menuItemTag == "File_SaveAs");
 			}
 			else if (menuItemTag == "Program_Exit")
 			{
@@ -430,6 +426,20 @@ namespace Budgeter
 
 		private void Window_Closing(object sender, CancelEventArgs e)
 		{
+			if (m_BudgetModified)
+			{
+				var res = MessageBox.Show("Save the changes to the current budget?", "Budget Modified", MessageBoxButton.YesNoCancel);
+				if (res == MessageBoxResult.Cancel)
+				{
+					e.Cancel = true;
+					return;
+				}
+				else if (res == MessageBoxResult.Yes)
+				{
+					SaveBudget(false);
+				}
+			}
+
 			Microsoft.Win32.RegistryKey? key = null;
 			try
 			{
@@ -450,6 +460,32 @@ namespace Budgeter
 			finally
 			{
 				key?.Close();
+			}
+		}
+
+		void SaveBudget(bool forceSaveAs)
+		{
+			if (!forceSaveAs && m_CurrentFile != "")
+			{
+				Budgeter.Save(m_CurrentFile);
+				BudgetModified = false;
+			}
+			else
+			{
+				Microsoft.Win32.SaveFileDialog dialog = new()
+				{
+					FileName = "Budget", // Default file name
+					DefaultExt = ".bgt", // Default file extension
+					Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
+				};
+
+				if (dialog.ShowDialog() == true)
+				{
+					Budgeter.Save(dialog.FileName);
+					BudgetModified = false;
+
+					CurrentFile = dialog.FileName;
+				}
 			}
 		}
 
@@ -531,6 +567,11 @@ namespace Budgeter
 			rd.Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
 			Resources.MergedDictionaries.Add(rd);
 		}
+
+		private void Label_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			m_Slider_Name.Value = 1;
+		}
 	}
 	[ValueConversion(typeof(double), typeof(bool))]
 	public class DoublePositive : IValueConverter
@@ -589,6 +630,32 @@ namespace Budgeter
 			else
 				throw new InvalidOperationException("Invalid conversion from String to DateTime. Check the format of the date.");
 		}
+	}
 
+	[ValueConversion(typeof(double), typeof(double))]
+	public class ZoomConverter : IValueConverter, INotifyPropertyChanged
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value is double doubleval)
+			{
+				if (doubleval < 1)
+					return 0.25 + doubleval * 0.75;
+				else
+					return doubleval * doubleval;
+			}
+			throw new InvalidOperationException("Invalid conversion double to font size.");
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			throw new InvalidOperationException("Converter can only be used one way.");
+		}
+
+		public event PropertyChangedEventHandler? PropertyChanged;
+		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		}
 	}
 }

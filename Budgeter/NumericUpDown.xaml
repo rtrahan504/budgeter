@@ -13,7 +13,13 @@
 				<ColumnDefinition Width="Auto"/>
 			</Grid.ColumnDefinitions>
 			<TextBox Grid.Column="0" Name="textBox" VerticalAlignment="Center" MinWidth="25" Text="{Binding ElementName=_this, Path=ValueString}" Background="{x:Null}" Padding="2" BorderBrush="{x:Null}" PreviewKeyDown="TextBox_PreviewKeyDown" BorderThickness ="0"/>
-			<ScrollBar Grid.Column="1" Name="scrollBar" Scroll="ScrollBar_Scroll" Minimum="0" Maximum="2" Value="1" SmallChange="1" MinHeight="30" BorderThickness="1,0,1,0" VerticalContentAlignment="Stretch"/>
-		</Grid>
+			<ScrollBar Grid.Column="1" Name="scrollBar" Scroll="ScrollBar_Scroll" Minimum="0" Maximum="2" Value="1" SmallChange="1" MinHeight="30" BorderThickness="1,0,1,0" VerticalContentAlignment="Stretch">
+                <ScrollBar.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="0.9" ScaleY="0.65"/>
+                    </TransformGroup>
+                </ScrollBar.LayoutTransform>
+            </ScrollBar>
+        </Grid>
 	</Border>
 </UserControl>
