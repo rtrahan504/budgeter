@@ -46,13 +46,13 @@ namespace Budgeter
 				dataGrid_Accounts.ItemsSource = m_Budgeter.Accounts;
 				dataGrid_Accounts.SelectedIndex = 0;
 
-				m_Budgeter.PropertyChanged += M_Budgeter_PropertyChanged;
+				m_Budgeter.PropertyChanged += Budgeter_PropertyChanged;
 
 				label_AccountTotal.SetBinding(Label.ContentProperty, new Binding(nameof(Budget.AccountsTotal)) { Source = m_Budgeter });
 			}
 		}
 
-		private void M_Budgeter_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+		private void Budgeter_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			BudgetModified = true;
 		}
@@ -102,14 +102,14 @@ namespace Budgeter
 			Budgeter = m_Budgeter;
 		}
 
-		private void dataGrid_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void DataGrid_Accounts_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			if (SelectedAccount != null)
 				NumericUpDown_DaysToForecast.Value = SelectedAccount.DaysToForecast;
 		}
 		private void DataGrid_Balance_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			dataGrid_Templates.SelectionChanged -= dataGrid_Templates_SelectionChanged;
+			dataGrid_Templates.SelectionChanged -= DataGrid_Templates_SelectionChanged;
 
 			dataGrid_Templates.SelectedItems.Clear();
 			foreach(var item in dataGrid_Balance.SelectedItems)
@@ -118,9 +118,9 @@ namespace Budgeter
 					dataGrid_Templates.SelectedItems.Add(charge.Template);
 			}
 
-			dataGrid_Templates.SelectionChanged += dataGrid_Templates_SelectionChanged;
+			dataGrid_Templates.SelectionChanged += DataGrid_Templates_SelectionChanged;
 		}
-		private void dataGrid_Templates_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void DataGrid_Templates_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			dataGrid_Balance.SelectionChanged -= DataGrid_Balance_SelectionChanged;
 
@@ -201,12 +201,10 @@ namespace Budgeter
 
 		private void OnMenuClick(object sender, RoutedEventArgs e)
 		{
-			var menuItem = e.Source as MenuItem;
-			if (menuItem == null)
+			if (e.Source is not MenuItem menuItem)
 				return;
 
-			string? menuItemTag = menuItem.Tag as String;
-			if (menuItemTag == null)
+			if (menuItem.Tag is not String menuItemTag)
 				return;
 
 			if (menuItemTag == "File_New")
@@ -321,9 +319,7 @@ namespace Budgeter
 				HashSet<string> messages = new();
 				foreach (var item in dataGrid_Balance.SelectedItems)
 				{
-					var entry = item as BudgetEntry;
-
-					if (entry == null)
+					if (item is not BudgetEntry entry)
 						continue;
 					else if (item is Today)
 					{ }
@@ -374,8 +370,7 @@ namespace Budgeter
 				{
 					Name = "{new recurring charge}"
 				};
-				if (SelectedAccount != null)
-					SelectedAccount.RecurringChargeTemplates.Add(val);
+				SelectedAccount?.RecurringChargeTemplates.Add(val);
 				dataGrid_Templates.SelectedItem = val;
 				dataGrid_Templates.Focus();
 			}
@@ -385,9 +380,7 @@ namespace Budgeter
 				HashSet<string> messages = new();
 				foreach (var item in dataGrid_Templates.SelectedItems)
 				{
-					var entry = item as RecurringChargeTemplate;
-
-					if (entry == null)
+					if (item is not RecurringChargeTemplate entry)
 						continue;
 					else
 					{
@@ -410,13 +403,17 @@ namespace Budgeter
 			}
 			else if (menuItemTag == "About")
 			{
-				About newwindow = new();
-				newwindow.Owner = this;
+				About newwindow = new()
+				{
+					Owner = this
+				};
 
 				if (toggleButton_DarkMode.IsChecked == false)
 				{
-					var rd = new System.Windows.ResourceDictionary();
-					rd.Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
+					var rd = new System.Windows.ResourceDictionary
+					{
+						Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+					};
 					newwindow.Resources.MergedDictionaries.Add(rd);
 				}
 
@@ -515,7 +512,7 @@ namespace Budgeter
 
 				object? windowState = WindowState;
 				if (WindowState.TryParse(typeof(WindowState), key.GetValue("WindowState")?.ToString(), true, out windowState))
-					WindowState = windowState is WindowState ? (WindowState)windowState : WindowState;
+					WindowState = windowState is WindowState state ? state : WindowState;
 
 				if (Double.TryParse(key.GetValue("AccountSplitter") as string, out val))
 					Grid_BalanceSheet.ColumnDefinitions[0].Width = new GridLength(val, GridUnitType.Pixel);
@@ -563,8 +560,10 @@ namespace Budgeter
 
 		private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
 		{
-			var rd = new System.Windows.ResourceDictionary();
-			rd.Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
+			var rd = new System.Windows.ResourceDictionary()
+			{
+				Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+			};
 			Resources.MergedDictionaries.Add(rd);
 		}
 
@@ -633,7 +632,7 @@ namespace Budgeter
 	}
 
 	[ValueConversion(typeof(double), typeof(double))]
-	public class ZoomConverter : IValueConverter, INotifyPropertyChanged
+	public class ZoomConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
@@ -650,12 +649,6 @@ namespace Budgeter
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new InvalidOperationException("Converter can only be used one way.");
-		}
-
-		public event PropertyChangedEventHandler? PropertyChanged;
-		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

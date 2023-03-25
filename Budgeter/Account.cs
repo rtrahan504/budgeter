@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace Budgeter
@@ -62,6 +63,8 @@ namespace Budgeter
 			m_BalanceOverrides ??= new();
 			m_Charges ??= new();
 
+			m_RecurringChargeTemplates = new ObservableCollection<RecurringChargeTemplate>(m_RecurringChargeTemplates.OrderBy(val => val.Name));
+
 			m_RecurringChargeTemplates.CollectionChanged += OnCollectionChanged;
 			m_BalanceOverrides.CollectionChanged += OnCollectionChanged;
 			m_Charges.CollectionChanged += OnCollectionChanged;
@@ -77,6 +80,8 @@ namespace Budgeter
 		public void UpdateEntries()
 		{
 			m_Today ??= new();
+
+			var oldBalance = Balance;
 
 			List<BudgetEntry> tmpList = new()
 			{
@@ -113,7 +118,10 @@ namespace Budgeter
 			}
 
 			// Rebuilding the account may have changed the balance
-			OnPropertyChanged(nameof(Balance));
+			if (oldBalance != Balance)
+			{
+				OnPropertyChanged(nameof(Balance));
+			}
 		}
 
 		void Entry_PropertyChanged(object? sender, PropertyChangedEventArgs e)

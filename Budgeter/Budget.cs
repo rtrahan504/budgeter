@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace Budgeter
 {
@@ -57,6 +58,7 @@ namespace Budgeter
 		public void OnDeserialized()
 		{
 			m_Accounts ??= new();
+			m_Accounts = new ObservableCollection<Account>(m_Accounts.OrderBy(val => val.Name));
 			m_Accounts.CollectionChanged += Accounts_CollectionChanged;
 
 			Accounts_CollectionChanged(null, new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Add, m_Accounts));

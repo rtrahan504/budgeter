@@ -97,7 +97,7 @@
                         <Label Grid.Column="0" VerticalContentAlignment="Center" Foreground="{DynamicResource Foreground}">Today's Total:</Label>
                         <Label x:Name="label_AccountTotal" Grid.Column="1" VerticalContentAlignment="Center" Foreground="{DynamicResource Foreground}" ContentStringFormat="{}{0:C2}"/>
                     </Grid>
-                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" SelectionUnit="FullRow" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
+                    <DataGrid x:Name="dataGrid_Accounts" DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Single" SelectionUnit="FullRow" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="DataGrid_Accounts_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>
@@ -229,7 +229,7 @@
                         <local:NumericUpDown x:Name="NumericUpDown_DaysToForecast" Width="75" DecimalPlaces="0" HorizontalAlignment="Left" ValueChanged="NumericUpDown_ValueChanged" VerticalContentAlignment="Center"/>
                         <Label VerticalContentAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource Foreground}">days into the future.</Label>
                     </StackPanel>
-                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="dataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
+                    <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding ElementName=dataGrid_Accounts, Path=SelectedItem.RecurringChargeTemplates, Mode=OneWay}" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="DataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                         <DataGrid.CellStyle>
                             <Style TargetType="{x:Type DataGridCell}">
                                 <Style.Triggers>

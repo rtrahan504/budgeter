@@ -16,11 +16,27 @@ namespace Budgeter
 
 	public abstract class BudgetEntry : INotifyPropertyChanged
 	{
-		public bool Enabled { get { return m_Enabled; } set { m_Enabled = value; OnPropertyChanged(nameof(Enabled)); } }
-		public virtual String Name { get { return m_Name; } protected set { m_Name = value; OnPropertyChanged(nameof(Name)); } }
+		public bool Enabled
+		{
+			get { return m_Enabled; }
+			set { if (m_Enabled == value) return; m_Enabled = value; OnPropertyChanged(nameof(Enabled)); }
+		}
+		public virtual String Name
+		{
+			get { return m_Name; }
+			protected set { if (m_Name == value) return; m_Name = value; OnPropertyChanged(nameof(Name)); }
+		}
 		public abstract String Type { get; }
-		public virtual DateTime Date { get { return m_Date; } protected set { m_Date = value; OnPropertyChanged(nameof(Date)); } }
-		public virtual double? Amount { get { return m_Amount; } set { m_Amount = value; OnPropertyChanged(nameof(Amount)); } }
+		public virtual DateTime Date
+		{
+			get { return m_Date; }
+			protected set { if (m_Date == value) return; m_Date = value; OnPropertyChanged(nameof(Date)); }
+		}
+		public virtual double? Amount
+		{
+			get { return m_Amount; }
+			set { if (m_Amount == value) return; m_Amount = value; OnPropertyChanged(nameof(Amount)); }
+		}
 		public virtual double Balance
 		{
 			get
@@ -32,7 +48,11 @@ namespace Budgeter
 			}
 		}
 
-		internal BudgetEntry? Predecessor { get { return m_Predecessor; } set { m_Predecessor = value; } }
+		internal BudgetEntry? Predecessor
+		{
+			get { return m_Predecessor; }
+			set { m_Predecessor = value; }
+		}
 
 		protected BudgetEntry() { }
 
@@ -156,12 +176,15 @@ namespace Budgeter
 
 		public List<RecurringCharge> GetRecurringCharges(int daysToForecast)
 		{
+			bool changed = false;
+
 			if (RecurrenceInterval == RecurrenceIntervals.None || Interval == 0 || Date.Year < 2000)
 			{
 				if (m_RecurringCharges.Count != 1)
 				{
 					m_RecurringCharges.Clear();
 					m_RecurringCharges.Add(new RecurringCharge(this, 0));
+					changed = true;
 				}
 			}
 			else
@@ -184,9 +207,12 @@ namespace Budgeter
 					else
 						break;
 				}
+
+				changed = !Enumerable.SequenceEqual(m_RecurringCharges, oldCharges);
 			}
 
-			OnPropertyChanged(nameof(RecurringCharges));
+			if (changed)
+				OnPropertyChanged(nameof(RecurringCharges));
 
 			return m_RecurringCharges;
 		}
@@ -258,6 +284,8 @@ namespace Budgeter
 			}
 			set
 			{
+				if (m_DefinedAmount == value)
+					return;
 				m_DefinedAmount = value == 0 ? null : value;
 				OnPropertyChanged(nameof(Amount));
 			}
