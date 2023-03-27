@@ -10,7 +10,16 @@ namespace Budgeter
 {
 	public class Budget : INotifyPropertyChanged, IJsonOnDeserialized
 	{
-		public ObservableCollection<Account> Accounts { get { return m_Accounts; } set { m_Accounts = value; } }
+		public ObservableCollection<Account> Accounts
+		{
+			get { return m_Accounts; }
+			set
+			{
+				m_Accounts = value;
+				OnPropertyChanged(nameof(Accounts));
+				IsBudgetModified = true;
+			}
+		}
 
 		public double AccountsTotal
 		{
@@ -23,8 +32,20 @@ namespace Budgeter
 			}
 		}
 
-		
-		public event PropertyChangedEventHandler? PropertyChanged;
+        bool m_IsBudgetModified = false;
+        public bool IsBudgetModified
+        {
+            get { return m_IsBudgetModified; }
+            set
+            {
+                if (m_IsBudgetModified == value)
+                    return;
+                m_IsBudgetModified = value;
+                OnPropertyChanged(nameof(IsBudgetModified));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 		void OnPropertyChanged(string propertyName)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -41,12 +62,16 @@ namespace Budgeter
 			};
 			string jsonString = JsonSerializer.Serialize(this, options);
 			File.WriteAllText(filename, jsonString);
+
+			IsBudgetModified = false;
 		}
 
 		public static Budget? Load(String filename)
 		{
 			string jsonString = File.ReadAllText(filename);
 			var ret = JsonSerializer.Deserialize<Budget>(jsonString);
+			if (ret != null)
+				ret.IsBudgetModified = false;
 			return ret;
 		}
 
@@ -70,6 +95,7 @@ namespace Budgeter
 			if (e.PropertyName == nameof(Account.Balance))
 			{
 				OnPropertyChanged(nameof(AccountsTotal));
+				IsBudgetModified = true;
 			}
 		}
 		void Accounts_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

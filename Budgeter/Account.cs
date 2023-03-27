@@ -11,14 +11,14 @@ namespace Budgeter
 	{
 		public double Balance { get { return Today.Balance; } }
 		[JsonIgnore]
-		public ObservableCollection<BudgetEntry> Entries { get { return m_Entries; } }
+		public ObservableCollection<AccountEntry> Entries { get { return m_Entries; } }
 		public Today Today { get { return m_Today; } }
 
 
 		public String Name
 		{
 			get { return m_Name; }
-			set { m_Name = value; OnPropertyChanged(nameof(Name)); }
+			set { if (m_Name == value) return; m_Name = value; OnPropertyChanged(nameof(Name)); }
 		}
 		public ObservableCollection<RecurringChargeTemplate> RecurringChargeTemplates
 		{
@@ -38,15 +38,15 @@ namespace Budgeter
 		public int DaysToForecast
 		{
 			get { return m_DaysToForecast; }
-			set { m_DaysToForecast = value; UpdateEntries(); OnPropertyChanged(nameof(DaysToForecast)); }
+			set { if (m_DaysToForecast == value) return; m_DaysToForecast = value; UpdateEntries(); OnPropertyChanged(nameof(DaysToForecast)); }
 		}
 
 
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 		void OnPropertyChanged(string propertyName)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 
@@ -83,7 +83,7 @@ namespace Budgeter
 
 			var oldBalance = Balance;
 
-			List<BudgetEntry> tmpList = new()
+			List<AccountEntry> tmpList = new()
 			{
 				m_Today
 			};
@@ -106,31 +106,38 @@ namespace Budgeter
 			});
 
 			m_Entries.Clear();
-			BudgetEntry? previous = null;
+			AccountEntry? previous = null;
 			for (int i = tmpList.Count - 1; i >= 0; --i)
 			{
 				var entry = tmpList[i];
 				if (entry == null) continue;
 				entry.Predecessor = previous;
-				entry.PropertyChanged += Entry_PropertyChanged;
+				entry.PropertyChanged -= Entry_PropertyChanged;
+                entry.PropertyChanged += Entry_PropertyChanged;
 				previous = entry;
 				m_Entries.Insert(0, entry);
 			}
 
 			// Rebuilding the account may have changed the balance
 			if (oldBalance != Balance)
-			{
-				OnPropertyChanged(nameof(Balance));
-			}
-		}
+            {
+                OnPropertyChanged(nameof(Balance));
+            }
+
+            OnPropertyChanged(nameof(Entries));
+        }
 
 		void Entry_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			// Propagate the balance change from the account entry to the account
-			if (e.PropertyName == nameof(BudgetEntry.Balance))
+			if (e.PropertyName == nameof(AccountEntry.Balance) || 
+				e.PropertyName == nameof(AccountEntry.Amount) || 
+				e.PropertyName == nameof(AccountEntry.Enabled))
 			{
 				OnPropertyChanged(nameof(Balance));
 			}
+
+			OnPropertyChanged(nameof(Entries));
 		}
 
 		Today m_Today = new();
@@ -138,7 +145,7 @@ namespace Budgeter
 		ObservableCollection<RecurringChargeTemplate> m_RecurringChargeTemplates = new();
 		ObservableCollection<Override> m_BalanceOverrides = new();
 		ObservableCollection<Charge> m_Charges = new();
-		readonly ObservableCollection<BudgetEntry> m_Entries = new();
+		readonly ObservableCollection<AccountEntry> m_Entries = new();
 		int m_DaysToForecast = 62;
 	}
 }

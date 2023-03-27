@@ -4,26 +4,35 @@
     <_LastSelectedProfileId>C:\Users\rtrah\source\repos\Budgeter\Budgeter\Properties\PublishProfiles\ClickOnceProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
-    <ApplicationDefinition Update="App.xaml">
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="About.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="NumericUpDown.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="About.xaml">
+    <Page Update="Forms\AccountRecurringChargeTemplates.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="MainWindow.xaml">
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Forms\About.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Forms\AccountBalanceSheet.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Forms\AccountRecurringChargeTemplates.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="UserControls\NumericUpDown.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Forms\About.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="NumericUpDown.xaml">
+    <Page Update="Forms\AccountBalanceSheet.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Forms\MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="UserControls\NumericUpDown.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

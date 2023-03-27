@@ -35,64 +35,72 @@
  </ItemGroup>
 
  <ItemGroup>
+   <Page Remove="Forms\App.xaml" />
+ </ItemGroup>
+
+ <ItemGroup>
+   <ApplicationDefinition Include="Forms\App.xaml" />
+ </ItemGroup>
+
+ <ItemGroup>
    <EmbeddedResource Include="lib\MahApps.Metro.dll">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="lib\Selen.Wpf.Core.dll">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="lib\Selen.Wpf.GenericAppTree.Contracts.dll">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="lib\Selen.Wpf.GenericAppTree.dll">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
    <EmbeddedResource Include="lib\Selen.Wpf.SystemStyles.dll">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
  </ItemGroup>
  <ItemGroup>
    <Resource Include="Icons\Exit_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
    <Resource Include="Icons\NewFile_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
    <Resource Include="Icons\OpenFile_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
    <Resource Include="Icons\Refresh_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
    <Resource Include="Icons\SaveAs_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
    <Resource Include="Icons\Save_16x.png">
-     <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </Resource>
  </ItemGroup>
 	
  <ItemGroup>
    <Reference Include="MahApps.Metro">
-     <HintPath>lib\MahApps.Metro.dll</HintPath>
-     <Private>True</Private>
+	 <HintPath>lib\MahApps.Metro.dll</HintPath>
+	 <Private>True</Private>
    </Reference>
    <Reference Include="Selen.Wpf.Core">
-     <HintPath>lib\Selen.Wpf.Core.dll</HintPath>
-     <Private>True</Private>
+	 <HintPath>lib\Selen.Wpf.Core.dll</HintPath>
+	 <Private>True</Private>
    </Reference>
    <Reference Include="Selen.Wpf.GenericAppTree">
-     <HintPath>lib\Selen.Wpf.GenericAppTree.dll</HintPath>
+	 <HintPath>lib\Selen.Wpf.GenericAppTree.dll</HintPath>
    </Reference>
    <Reference Include="Selen.Wpf.GenericAppTree.Contracts">
-     <HintPath>lib\Selen.Wpf.GenericAppTree.Contracts.dll</HintPath>
+	 <HintPath>lib\Selen.Wpf.GenericAppTree.Contracts.dll</HintPath>
    </Reference>
    <Reference Include="Selen.Wpf.SystemStyles">
-     <HintPath>lib\Selen.Wpf.SystemStyles.dll</HintPath>
-     <Private>True</Private>
+	 <HintPath>lib\Selen.Wpf.SystemStyles.dll</HintPath>
+	 <Private>True</Private>
    </Reference>
    <Reference Include="System.Windows.Interactivity">
-     <HintPath>lib\System.Windows.Interactivity.dll</HintPath>
+	 <HintPath>lib\System.Windows.Interactivity.dll</HintPath>
    </Reference>
  </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ namespace Budgeter
 	}
 
 
-	public abstract class BudgetEntry : INotifyPropertyChanged
+	public abstract class AccountEntry : INotifyPropertyChanged
 	{
 		public bool Enabled
 		{
@@ -48,20 +48,20 @@ namespace Budgeter
 			}
 		}
 
-		internal BudgetEntry? Predecessor
+		internal AccountEntry? Predecessor
 		{
 			get { return m_Predecessor; }
 			set { m_Predecessor = value; }
 		}
 
-		protected BudgetEntry() { }
+		protected AccountEntry() { }
 
 		bool m_Enabled = true;
 		String m_Name = "";
 		DateTime m_Date;
 		double? m_Amount = null;
 		[field: NonSerialized]
-		BudgetEntry? m_Predecessor = null;
+		AccountEntry? m_Predecessor = null;
 
 
 		public event PropertyChangedEventHandler? PropertyChanged;
@@ -69,22 +69,22 @@ namespace Budgeter
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-			if (propertyName == nameof(BudgetEntry.Enabled) ||
-				propertyName == nameof(BudgetEntry.Date) ||
-				propertyName == nameof(BudgetEntry.Amount))
+			if (propertyName == nameof(AccountEntry.Enabled) ||
+				propertyName == nameof(AccountEntry.Date) ||
+				propertyName == nameof(AccountEntry.Amount))
 			{
 				OnPropertyChanged(nameof(Balance));
 			}
 		}
 	}
 
-	public class Today : BudgetEntry
+	public class Today : AccountEntry
 	{
 		public override String Type { get { return "Today"; } }
 		public override DateTime Date { get { return DateTime.Now; } }
 	}
 
-	public class Override : BudgetEntry
+	public class Override : AccountEntry
 	{
 		public new String Name
 		{
@@ -120,7 +120,7 @@ namespace Budgeter
 		}
 	}
 
-	public class Charge : BudgetEntry
+	public class Charge : AccountEntry
 	{
 		public new String Name
 		{
@@ -257,7 +257,7 @@ namespace Budgeter
 		}
 	}
 
-	public class RecurringCharge : BudgetEntry
+	public class RecurringCharge : AccountEntry
 	{
 		public override String Name { get { return Template.Name; } }
 		public override String Type { get { return "Recurring"; } }
