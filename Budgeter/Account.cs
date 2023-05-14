@@ -1,60 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace Budgeter
 {
 	public class Account : INotifyPropertyChanged, IJsonOnDeserialized
 	{
+		[JsonIgnore]
 		public double Balance { get { return Today.Balance; } }
 		[JsonIgnore]
 		public ObservableCollection<AccountEntry> Entries { get { return m_Entries; } }
+		[JsonIgnore]
 		public Today Today { get { return m_Today; } }
 
 
 		public String Name
 		{
 			get { return m_Name; }
-			set { if (m_Name == value) return; m_Name = value; OnPropertyChanged(nameof(Name)); }
+			set { if (m_Name == value) return; m_Name = value; NotifyPropertyChanged(); }
 		}
+		[JsonInclude]
 		public ObservableCollection<RecurringChargeTemplate> RecurringChargeTemplates
 		{
 			get { return m_RecurringChargeTemplates; }
-			set { m_RecurringChargeTemplates = value; UpdateEntries(); OnPropertyChanged(nameof(RecurringChargeTemplates)); }
+			private set { m_RecurringChargeTemplates = value; }
 		}
+		[JsonInclude]
 		public ObservableCollection<Override> BalanceOverrides
 		{
 			get { return m_BalanceOverrides; }
-			set { m_BalanceOverrides = value; UpdateEntries(); OnPropertyChanged(nameof(BalanceOverrides)); }
+			private set { m_BalanceOverrides = value; }
 		}
+		[JsonInclude]
 		public ObservableCollection<Charge> Charges
 		{
 			get { return m_Charges; }
-			set { m_Charges = value; UpdateEntries(); OnPropertyChanged(nameof(Charges)); }
+			private set { m_Charges = value; }
 		}
 		public int DaysToForecast
 		{
 			get { return m_DaysToForecast; }
-			set { if (m_DaysToForecast == value) return; m_DaysToForecast = value; UpdateEntries(); OnPropertyChanged(nameof(DaysToForecast)); }
+			set { if (m_DaysToForecast == value) return; m_DaysToForecast = value; UpdateEntries(); NotifyPropertyChanged(); }
 		}
 
 
 
 		public event PropertyChangedEventHandler? PropertyChanged;
-		void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 
 		public Account()
 		{
-			m_RecurringChargeTemplates.CollectionChanged += OnCollectionChanged;
-			m_BalanceOverrides.CollectionChanged += OnCollectionChanged;
-			m_Charges.CollectionChanged += OnCollectionChanged;
+			OnDeserialized();
 		}
 		public void OnDeserialized()
 		{
@@ -65,15 +70,22 @@ namespace Budgeter
 
 			m_RecurringChargeTemplates = new ObservableCollection<RecurringChargeTemplate>(m_RecurringChargeTemplates.OrderBy(val => val.Name));
 
-			m_RecurringChargeTemplates.CollectionChanged += OnCollectionChanged;
-			m_BalanceOverrides.CollectionChanged += OnCollectionChanged;
-			m_Charges.CollectionChanged += OnCollectionChanged;
+			m_RecurringChargeTemplates.CollectionChanged += delegate (object? o, NotifyCollectionChangedEventArgs e)
+			{
+				UpdateEntries();
+				NotifyPropertyChanged(nameof(RecurringChargeTemplates));
+			};
+			m_BalanceOverrides.CollectionChanged += delegate (object? o, NotifyCollectionChangedEventArgs e)
+			{
+				UpdateEntries();
+				NotifyPropertyChanged(nameof(BalanceOverrides));
+			};
+			m_Charges.CollectionChanged += delegate (object? o, NotifyCollectionChangedEventArgs e)
+			{
+				UpdateEntries();
+				NotifyPropertyChanged(nameof(Charges));
+			};
 
-			UpdateEntries();
-		}
-
-		public void OnCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
 			UpdateEntries();
 		}
 
@@ -113,19 +125,16 @@ namespace Budgeter
 				if (entry == null) continue;
 				entry.Predecessor = previous;
 				entry.PropertyChanged -= Entry_PropertyChanged;
-                entry.PropertyChanged += Entry_PropertyChanged;
+				entry.PropertyChanged += Entry_PropertyChanged;
 				previous = entry;
 				m_Entries.Insert(0, entry);
 			}
 
 			// Rebuilding the account may have changed the balance
 			if (oldBalance != Balance)
-            {
-                OnPropertyChanged(nameof(Balance));
-            }
-
-            OnPropertyChanged(nameof(Entries));
-        }
+				NotifyPropertyChanged(nameof(Balance));
+			NotifyPropertyChanged(nameof(Entries));
+		}
 
 		void Entry_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
@@ -134,10 +143,10 @@ namespace Budgeter
 				e.PropertyName == nameof(AccountEntry.Amount) || 
 				e.PropertyName == nameof(AccountEntry.Enabled))
 			{
-				OnPropertyChanged(nameof(Balance));
+				NotifyPropertyChanged(nameof(Balance));
 			}
 
-			OnPropertyChanged(nameof(Entries));
+			NotifyPropertyChanged(nameof(Entries));
 		}
 
 		Today m_Today = new();

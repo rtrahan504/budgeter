@@ -10,8 +10,11 @@ namespace Budgeter
 {
 	class MenuClickHandlers
 	{
-		public static void OnMenuClick(string menuItemTag, BudgetView budgetView)
+		public static void OnMenuClick(string menuItemTag, BudgetView? budgetView)
 		{
+			if (budgetView == null)
+				return;
+
 			if (menuItemTag == "Account_NewAccount")
 			{
 				budgetView.Budget.Accounts.Add(new Account());

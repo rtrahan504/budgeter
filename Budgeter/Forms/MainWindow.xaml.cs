@@ -9,80 +9,110 @@ namespace Budgeter
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window, INotifyPropertyChanged
+	public partial class MainWindow : Window, INotifyPropertyChanged, INotifyPropertyChanging
 	{
-		readonly String RegistryPath_CurrentFile = @"SOFTWARE\Budgeter";
+		public MainWindow()
+		{
+			InitializeComponent();
 
-		Budget? m_Budget;
+			BudgetView = m_BudgetView;
+
+			PropertyChanging += OnPropertyChanging;
+			PropertyChanged += OnPropertyChanged;
+		}
+
+
+		readonly String RegistryPath_CurrentFile = @"SOFTWARE\Budgeter";
+		readonly System.Uri DarkModeSource = new("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml");
+
 		BudgetView m_BudgetView = new();
 
+		public BudgetView BudgetView
+		{
+			get { return m_BudgetView; }
+			set
+			{
+				NotifyPropertyChanging();
+
+				m_AccountList.CurrentBudgetView = null;
+				m_AccountBalanceSheet.CurrentBudgetView = null;
+				m_AccountRecurringChargeTemplates.CurrentBudgetView = null;
+				m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;				
+
+				m_BudgetView = value;
+
+				m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
+				m_AccountList.CurrentBudgetView = m_BudgetView;
+				m_AccountBalanceSheet.CurrentBudgetView = m_BudgetView;
+				m_AccountRecurringChargeTemplates.CurrentBudgetView = m_BudgetView;
+
+				NotifyPropertyChanged();
+			}
+		}
+
+		public String DynamicTitle
+		{
+			get
+			{
+				if (BudgetView.CurrentFile == "")
+					return "Budgeter - {untitled}";
+				else
+					return "Budgeter - " + System.IO.Path.GetFileName(BudgetView.CurrentFile) + (BudgetView.IsBudgetModified ? "*" : "");
+			}
+		}
+
+
+		public event PropertyChangingEventHandler? PropertyChanging;
 		public event PropertyChangedEventHandler? PropertyChanged;
+
+		private void NotifyPropertyChanging([CallerMemberName] String propertyName = "")
+		{
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+		}
 		private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		String m_CurrentFile = "";
-		public String CurrentFile
+		void OnPropertyChanging(object? sender, PropertyChangingEventArgs e)
 		{
-			get { return m_CurrentFile; }
-			set
+			if (e.PropertyName == nameof(BudgetView))
+			{
+				if (!BudgetView.IsBudgetModified)
+					return;
+
+				var res = MessageBox.Show("Save the changes to the current budget?", "Budget Modified", MessageBoxButton.YesNoCancel);
+
+				if (res == MessageBoxResult.Cancel)
+					throw new OperationCanceledException();
+				else if (res == MessageBoxResult.Yes)
+					SaveBudget(false);
+			}
+		}
+		void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(BudgetView))
+			{
+				OnBudgetViewPropertyChanged(sender, new PropertyChangedEventArgs(nameof(BudgetView.CurrentFile)));
+			}
+		}
+
+
+
+		private void OnBudgetViewPropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof(BudgetView.IsBudgetModified))
+			{
+				NotifyPropertyChanged(nameof(DynamicTitle));
+			}
+			else if (e.PropertyName == nameof(BudgetView.CurrentFile))
 			{
 				var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(RegistryPath_CurrentFile);
-				key.SetValue("CurrentFile", value == "{untitled}" ? "" : value);
+				key.SetValue("CurrentFile", BudgetView == null || BudgetView.CurrentFile == "" ? "" : BudgetView.CurrentFile);
 				key.Close();
 
-				m_CurrentFile = value;
+				NotifyPropertyChanged(nameof(BudgetView.CurrentFile));
 				NotifyPropertyChanged(nameof(DynamicTitle));
-			}
-		}
-		public String DynamicTitle
-		{
-			get
-			{
-				if (CurrentFile == null || CurrentFile == "" || m_BudgetView == null)
-					return "Budgeter";
-				else
-					return "Budgeter - " + System.IO.Path.GetFileName(CurrentFile) + (m_BudgetView.Budget.IsBudgetModified ? "*" : "");
-			}
-		}
-
-
-		public MainWindow()
-		{
-			m_CurrentFile = "{untitled}";
-			NotifyPropertyChanged(nameof(DynamicTitle));
-
-			m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
-
-			InitializeComponent();
-
-			m_AccountList.CurrentBudgetView = m_BudgetView;
-			m_AccountBalanceSheet.CurrentBudgetView = m_BudgetView;
-			m_AccountRecurringChargeTemplates.CurrentBudgetView = m_BudgetView;
-
-			m_BudgetView.Budget = new();
-		}
-
-		void OnBudgetPropertyChanged(object? sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == nameof(Budget.IsBudgetModified))
-			{
-				NotifyPropertyChanged(nameof(DynamicTitle));
-			}
-		}
-
-		void OnBudgetViewPropertyChanged(object? sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == nameof(BudgetView.Budget))
-			{
-				if (m_Budget != null)
-					m_Budget.PropertyChanged -= OnBudgetPropertyChanged;
-
-				m_Budget = m_BudgetView.Budget;
-
-				if (m_Budget != null)
-					m_Budget.PropertyChanged += OnBudgetPropertyChanged;
 			}
 		}
 
@@ -94,40 +124,41 @@ namespace Budgeter
 			if (menuItem == null || menuItem.Tag is not string menuItemTag)
 				return;
 
-			MenuClickHandlers.OnMenuClick(menuItemTag, m_BudgetView);
+			MenuClickHandlers.OnMenuClick(menuItemTag, BudgetView);
 
 			if (menuItemTag == "File_New")
 			{
-				if (System.Windows.MessageBox.Show("Are you sure you want to start a new budget?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+				try
 				{
-					m_BudgetView.Budget = new Budget();
-					CurrentFile = "{untitled}";
+					if (System.Windows.MessageBox.Show("Are you sure you want to start a new budget?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+						BudgetView = new BudgetView();
+				}
+				catch (OperationCanceledException)
+				{
+					return;
 				}
 			}
 			else if (menuItemTag == "File_Open")
 			{
-				Microsoft.Win32.OpenFileDialog dialog = new()
+				try
 				{
-					FileName = "Budget", // Default file name
-					DefaultExt = ".bgt", // Default file extension
-					Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
-				};
+					Microsoft.Win32.OpenFileDialog dialog = new()
+					{
+						FileName = "Budget", // Default file name
+						DefaultExt = ".bgt", // Default file extension
+						Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
+					};
 
-				if (dialog.ShowDialog() == true)
+					if (dialog.ShowDialog() == true)
+						BudgetView = BudgetView.Load(dialog.FileName);
+				}
+				catch (OperationCanceledException)
 				{
-					try
-					{
-						var newBudget = Budget.Load(dialog.FileName);
-						if (newBudget != null)
-						{
-							m_BudgetView.Budget = newBudget;
-							CurrentFile = dialog.FileName;
-						}
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show("An error occurred.\n" + ex.Message, "Error", MessageBoxButton.OK);
-					}
+					return;
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show("An error occurred.\n" + ex.Message, "Error", MessageBoxButton.OK);
 				}
 			}
 			else if (menuItemTag == "File_Save" || menuItemTag == "File_SaveAs")
@@ -149,7 +180,7 @@ namespace Budgeter
 				{
 					var rd = new System.Windows.ResourceDictionary
 					{
-						Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+						Source = DarkModeSource
 					};
 					newwindow.Resources.MergedDictionaries.Add(rd);
 				}
@@ -160,21 +191,16 @@ namespace Budgeter
 
 		private void Window_Closing(object sender, CancelEventArgs e)
 		{
-			if (m_BudgetView == null)
-				return;
-
-			if (m_BudgetView.Budget.IsBudgetModified)
+			try
 			{
-				var res = MessageBox.Show("Save the changes to the current budget?", "Budget Modified", MessageBoxButton.YesNoCancel);
-				if (res == MessageBoxResult.Cancel)
-				{
-					e.Cancel = true;
-					return;
-				}
-				else if (res == MessageBoxResult.Yes)
-				{
-					SaveBudget(false);
-				}
+				PropertyChanged -= OnPropertyChanged; // Disconnect so the registry doesn't store new object as the last active file
+				BudgetView = new(); // Set to new to check if user wants to save changes
+			}
+			catch (OperationCanceledException)
+			{
+				PropertyChanged += OnPropertyChanged; // Back to normal since canceled
+				e.Cancel = true;
+				return;
 			}
 
 			Microsoft.Win32.RegistryKey? key = null;
@@ -202,13 +228,9 @@ namespace Budgeter
 
 		void SaveBudget(bool forceSaveAs)
 		{
-			if (m_BudgetView == null)
-				return;
-
-			if (!forceSaveAs && m_CurrentFile != "")
+			if (!forceSaveAs && BudgetView.CurrentFile != "")
 			{
-				m_BudgetView.Budget.Save(m_CurrentFile);
-
+				BudgetView.Save(BudgetView.CurrentFile);
 			}
 			else
 			{
@@ -221,9 +243,7 @@ namespace Budgeter
 
 				if (dialog.ShowDialog() == true)
 				{
-					m_BudgetView.Budget.Save(dialog.FileName);
-
-					CurrentFile = dialog.FileName;
+					BudgetView.Save(dialog.FileName);
 				}
 			}
 		}
@@ -236,7 +256,7 @@ namespace Budgeter
 				key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RegistryPath_CurrentFile);
 				if (key == null)
 					return;
-				
+
 				var file = key.GetValue("CurrentFile") as string ?? "";
 
 				double val = Width;
@@ -263,16 +283,11 @@ namespace Budgeter
 
 				toggleButton_DarkMode.IsChecked = key.GetValue("ColorMode")?.ToString() == "Light";
 
-				var newBudget = Budget.Load(file);
-				if (newBudget != null)
-				{
-					m_CurrentFile = file;
-					NotifyPropertyChanged(nameof(DynamicTitle));
-					m_BudgetView.Budget = newBudget;
-				}
+				BudgetView = BudgetView.Load(file);
 			}
 			catch
-			{ }
+			{
+			}
 			finally
 			{
 				key?.Close();
@@ -281,24 +296,32 @@ namespace Budgeter
 
 		private void ToggleButton_Checked(object sender, RoutedEventArgs e)
 		{
-			foreach (var dict in Resources.MergedDictionaries)
+			foreach( var control in new Control[] { this, this.m_AccountList, this.m_AccountBalanceSheet, this.m_AccountRecurringChargeTemplates })
 			{
-				if (dict != null && dict.Source.OriginalString == "pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+				bool found = false;
+				do
 				{
-					Resources.MergedDictionaries.Remove(dict);
-
-					UpdateLayout();
-
-					break;
-				}
+					found = false;
+					foreach (var dict in control.Resources.MergedDictionaries)
+					{
+						if (dict != null && dict.Source.OriginalString == DarkModeSource.OriginalString)
+						{
+							control.Resources.MergedDictionaries.Remove(dict);
+							found = true;
+							break;
+						}
+					}
+				} while (found);
 			}
+
+			UpdateLayout();
 		}
 
 		private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
 		{
 			var rd = new System.Windows.ResourceDictionary()
 			{
-				Source = new System.Uri("pack://application:,,,/Selen.Wpf.SystemStyles;component/Styles.xaml")
+				Source = DarkModeSource
 			};
 			Resources.MergedDictionaries.Add(rd);
 		}

@@ -35,7 +35,7 @@
                 <local:NumericUpDown x:Name="NumericUpDown_DaysToForecast" Width="75" DecimalPlaces="0" HorizontalAlignment="Left" ValueChanged="NumericUpDown_ValueChanged" VerticalContentAlignment="Center"/>
                 <Label VerticalContentAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource Foreground}">days into the future.</Label>
             </StackPanel>
-            <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding CurrentBudgetView.SelectedAccount.RecurringChargeTemplates, Mode=OneWay}" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" SelectionUnit="FullRow" CellEditEnding="DataGrid_Templates_CellEditEnding" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="DataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
+            <DataGrid Name="dataGrid_Templates" ItemsSource="{Binding SelectedAccount.RecurringChargeTemplates, Mode=OneWay}" Foreground="{DynamicResource Foreground}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" SelectionMode="Extended" SelectionUnit="FullRow" BorderBrush="{x:Null}" VerticalContentAlignment="Stretch" SelectionChanged="DataGrid_Templates_SelectionChanged" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                 <DataGrid.CellStyle>
                     <Style TargetType="{x:Type DataGridCell}">
                         <Style.Triggers>

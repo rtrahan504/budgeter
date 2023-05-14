@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -19,6 +20,7 @@ namespace Budgeter
 			{
 				if (m_BudgetView != null)
 				{
+					m_BudgetView.Budget.PropertyChanged -= OnBudgetViewPropertyChanged;
 					m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;
 				}
 
@@ -27,9 +29,21 @@ namespace Budgeter
 				if (m_BudgetView != null)
 				{
 					m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
+					m_BudgetView.Budget.PropertyChanged += OnBudgetViewPropertyChanged;
 				}
 
 				NotifyPropertyChanged(nameof(CurrentBudgetView));
+				NotifyPropertyChanged(nameof(CurrentAccounts));
+
+				OnBudgetViewPropertyChanged(null, new PropertyChangedEventArgs(nameof(BudgetView.SelectedAccount)));
+			}
+		}
+
+		public ObservableCollection<Account>? CurrentAccounts
+		{
+			get
+			{
+				return m_BudgetView?.Budget.Accounts;
 			}
 		}
 
@@ -43,6 +57,10 @@ namespace Budgeter
 			{
 				if (dataGrid_Accounts.SelectedItem != m_BudgetView.SelectedAccount)
 					dataGrid_Accounts.SelectedItem = m_BudgetView.SelectedAccount;
+			}
+			if (e.PropertyName == nameof(Budget.Accounts))
+			{
+				NotifyPropertyChanged(nameof(CurrentAccounts));
 			}
 		}
 

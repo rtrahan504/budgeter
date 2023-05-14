@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace Budgeter
@@ -19,23 +20,23 @@ namespace Budgeter
 		public bool Enabled
 		{
 			get { return m_Enabled; }
-			set { if (m_Enabled == value) return; m_Enabled = value; OnPropertyChanged(nameof(Enabled)); }
+			set { if (m_Enabled == value) return; m_Enabled = value; NotifyPropertyChanged(); }
 		}
 		public virtual String Name
 		{
 			get { return m_Name; }
-			protected set { if (m_Name == value) return; m_Name = value; OnPropertyChanged(nameof(Name)); }
+			protected set { if (m_Name == value) return; m_Name = value; NotifyPropertyChanged(); }
 		}
 		public abstract String Type { get; }
 		public virtual DateTime Date
 		{
 			get { return m_Date; }
-			protected set { if (m_Date == value) return; m_Date = value; OnPropertyChanged(nameof(Date)); }
+			protected set { if (m_Date == value) return; m_Date = value; NotifyPropertyChanged(); }
 		}
 		public virtual double? Amount
 		{
 			get { return m_Amount; }
-			set { if (m_Amount == value) return; m_Amount = value; OnPropertyChanged(nameof(Amount)); }
+			set { if (m_Amount == value) return; m_Amount = value; NotifyPropertyChanged(); }
 		}
 		public virtual double Balance
 		{
@@ -65,7 +66,7 @@ namespace Budgeter
 
 
 		public event PropertyChangedEventHandler? PropertyChanged;
-		protected void OnPropertyChanged(string propertyName)
+		protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
@@ -73,7 +74,7 @@ namespace Budgeter
 				propertyName == nameof(AccountEntry.Date) ||
 				propertyName == nameof(AccountEntry.Amount))
 			{
-				OnPropertyChanged(nameof(Balance));
+				NotifyPropertyChanged(nameof(Balance));
 			}
 		}
 	}
@@ -145,33 +146,33 @@ namespace Budgeter
 		public String Name
 		{
 			get { return m_Name; }
-			set { m_Name = value; OnPropertyChanged(nameof(Name)); }
+			set { m_Name = value; NotifyPropertyChanged(); }
 		}
 		public DateTime Date
 		{
 			get { return m_Date; }
-			set { m_Date = value; OnPropertyChanged(nameof(Date)); }
+			set { m_Date = value; NotifyPropertyChanged(); }
 		}
 		public RecurrenceIntervals RecurrenceInterval
 		{
 			get { return m_RecurrenceInterval; }
-			set { m_RecurrenceInterval = value; OnPropertyChanged(nameof(RecurrenceInterval)); }
+			set { m_RecurrenceInterval = value; NotifyPropertyChanged(); }
 		}
 		public UInt32 Interval
 		{
 			get { return m_Interval; }
-			set { m_Interval = value; OnPropertyChanged(nameof(Interval)); }
+			set { m_Interval = value; NotifyPropertyChanged(); }
 		}
 		public double PredefinedAmount
 		{
 			get { return m_PredefinedAmount; }
-			set { m_PredefinedAmount = value; OnPropertyChanged(nameof(PredefinedAmount)); }
+			set { m_PredefinedAmount = value; NotifyPropertyChanged(); }
 		}
 
 		public List<RecurringCharge> RecurringCharges
 		{
 			get { return m_RecurringCharges; }
-			set { m_RecurringCharges = value; OnPropertyChanged(nameof(RecurringCharges)); }
+			set { m_RecurringCharges = value; NotifyPropertyChanged(); }
 		}
 
 		public List<RecurringCharge> GetRecurringCharges(int daysToForecast)
@@ -212,7 +213,7 @@ namespace Budgeter
 			}
 
 			if (changed)
-				OnPropertyChanged(nameof(RecurringCharges));
+				NotifyPropertyChanged(nameof(RecurringCharges));
 
 			return m_RecurringCharges;
 		}
@@ -251,7 +252,7 @@ namespace Budgeter
 		List<RecurringCharge> m_RecurringCharges = new();
 
 		public event PropertyChangedEventHandler? PropertyChanged;
-		protected void OnPropertyChanged(string propertyName)
+		protected void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
@@ -287,14 +288,14 @@ namespace Budgeter
 				if (m_DefinedAmount == value)
 					return;
 				m_DefinedAmount = value == 0 ? null : value;
-				OnPropertyChanged(nameof(Amount));
+				NotifyPropertyChanged();
 			}
 		}
 
 		public void ResetAmount()
 		{
 			m_DefinedAmount = Template.PredefinedAmount;
-			OnPropertyChanged(nameof(Amount));
+			NotifyPropertyChanged(nameof(Amount));
 		}
 
 		public RecurringCharge() { }

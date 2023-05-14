@@ -87,7 +87,8 @@
             <local:AccountRecurringChargeTemplates Grid.Column="4" x:Name="m_AccountRecurringChargeTemplates"></local:AccountRecurringChargeTemplates>
         </Grid>
         <StatusBar Grid.Row="2" Background="{DynamicResource Background}">
-            <StatusBarItem HorizontalAlignment="Right" Padding="5">
+            <Label x:Name="m_StatusMessage" Content="{Binding BudgetView.CurrentFile}" Foreground="{DynamicResource Foreground}"/>
+            <StatusBarItem Padding="5" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal" Margin="0">
                     <Slider MinWidth="150" x:Name="m_Slider_Name" Minimum="0" Maximum="2" Value="1" ToolTip="Zoom Factor" TickPlacement="BottomRight" TickFrequency="1" Interval="1" SmallChange="0.1" LargeChange="0.25">
                         <Slider.Style>
