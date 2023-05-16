@@ -24,7 +24,7 @@
     <Border BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
         <DockPanel>
             <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Account Balance Sheet</Label>
-            <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding CurrentBudgetView.SelectedAccount.Entries, Mode=OneWay}" Foreground="{DynamicResource Foreground}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" SelectionUnit="FullRow" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="True" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
+            <DataGrid Name="dataGrid_Balance" ItemsSource="{Binding SelectedAccount.Entries, Mode=OneWay}" Foreground="{DynamicResource Foreground}" DockPanel.Dock="Top" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionChanged="DataGrid_Balance_SelectionChanged" SelectionMode="Extended" SelectionUnit="FullRow" BeginningEdit="DataGrid_Balance_BeginningEdit" CanUserSortColumns="True" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" HeadersVisibility="Column" GridLinesVisibility="All">
                 <DataGrid.CellStyle>
                     <Style TargetType="{x:Type DataGridCell}">
                         <Style.Triggers>

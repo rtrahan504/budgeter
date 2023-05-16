@@ -14,6 +14,9 @@ namespace Budgeter
 	public partial class AccountBalanceSheet : UserControl, INotifyPropertyChanged
 	{
 		BudgetView? m_BudgetView;
+		Account? m_SelectedAccount;
+		bool m_SelectedAccountEntriesUpdating = false;
+
 		public BudgetView? CurrentBudgetView
 		{
 			get { return m_BudgetView; }
@@ -24,19 +27,39 @@ namespace Budgeter
 					m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;
 				}
 
+				SelectedAccount = null;
 				m_BudgetView = value;
+
+				NotifyPropertyChanged(nameof(CurrentBudgetView));
 
 				if (m_BudgetView != null)
 				{
 					m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
+					SelectedAccount = m_BudgetView.SelectedAccount;
 				}
-
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
 			}
 		}
 
-		Account? m_SelectedAccount;
-		bool m_SelectedAccountEntriesUpdating = false;
+		public Account? SelectedAccount
+		{
+			get { return m_SelectedAccount; }
+			set
+			{
+				if (m_SelectedAccount != null)
+				{
+					m_SelectedAccount.PropertyChanged -= OnSelectedAccountPropertyChanged;
+				}
+
+				m_SelectedAccount = m_BudgetView?.SelectedAccount;
+
+				if (m_SelectedAccount != null)
+				{
+					m_SelectedAccount.PropertyChanged += OnSelectedAccountPropertyChanged;
+				}
+
+				NotifyPropertyChanged(nameof(SelectedAccount));
+			}
+		}
 
 		private void OnBudgetViewPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
@@ -45,15 +68,7 @@ namespace Budgeter
 
 			if (e.PropertyName == nameof(BudgetView.SelectedAccount))
 			{
-				if (m_SelectedAccount != null)
-					m_SelectedAccount.PropertyChanged -= OnSelectedAccountPropertyChanged;
-
-				m_SelectedAccount = m_BudgetView.SelectedAccount;
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
-				NotifyPropertyChanged(nameof(BudgetView.SelectedAccount));
-
-				if (m_SelectedAccount != null)
-					m_SelectedAccount.PropertyChanged += OnSelectedAccountPropertyChanged;
+				SelectedAccount = m_BudgetView?.SelectedAccount;
 			}
 			else if (e.PropertyName == nameof(BudgetView.SelectedAccountEntries) && !m_SelectedAccountEntriesUpdating)
 			{
