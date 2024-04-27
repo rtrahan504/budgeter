@@ -24,7 +24,7 @@
             <local:DoublePositive x:Key="DoublePositive"/>
             <local:DoubleNegative x:Key="DoubleNegative"/>
             <local:DateConverter x:Key="DateConverter"/>
-              <local:ZoomConverter x:Key="ZoomConverter"/>
+            <local:ZoomConverter x:Key="ZoomConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Border Grid.Column="4" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">

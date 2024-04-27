@@ -84,7 +84,19 @@
             <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="1" Background="{DynamicResource Background}"/>
             <local:AccountBalanceSheet Grid.Column="2" x:Name="m_AccountBalanceSheet"></local:AccountBalanceSheet>
             <GridSplitter Width="5" HorizontalAlignment="Stretch" Grid.Column="3" Background="{DynamicResource Background}"/>
-            <local:AccountRecurringChargeTemplates Grid.Column="4" x:Name="m_AccountRecurringChargeTemplates"></local:AccountRecurringChargeTemplates>
+            <Grid Grid.Column="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <local:AccountRecurringChargeTemplates Grid.Column="0" Grid.Row="0" x:Name="m_AccountRecurringChargeTemplates"></local:AccountRecurringChargeTemplates>
+                <GridSplitter Height="5" HorizontalAlignment="Stretch" Grid.Column="0" Grid.Row="1" Background="{DynamicResource Background}"/>
+                <local:AccountBalanceChart Grid.Column="0" Grid.Row="2" x:Name="m_AccountBalanceChart"></local:AccountBalanceChart>
+            </Grid>
         </Grid>
         <StatusBar Grid.Row="2" Background="{DynamicResource Background}">
             <Label x:Name="m_StatusMessage" Content="{Binding BudgetView.CurrentFile}" Foreground="{DynamicResource Foreground}"/>

@@ -117,7 +117,9 @@ namespace Budgeter
 					return 0;
 			});
 
-			m_Entries.Clear();
+			var oldList = m_Entries.ToList();
+			var newList = new List<AccountEntry>();
+
 			AccountEntry? previous = null;
 			for (int i = tmpList.Count - 1; i >= 0; --i)
 			{
@@ -127,13 +129,24 @@ namespace Budgeter
 				entry.PropertyChanged -= Entry_PropertyChanged;
 				entry.PropertyChanged += Entry_PropertyChanged;
 				previous = entry;
-				m_Entries.Insert(0, entry);
+				newList.Insert(0, entry);
+			}
+
+			// Check if anything actually changed by rebuilding the account
+			var entriesChanged = !newList.SequenceEqual(m_Entries);
+			if (entriesChanged)
+			{
+				m_Entries.Clear();
+				foreach (var item in newList)
+					m_Entries.Add(item);
 			}
 
 			// Rebuilding the account may have changed the balance
 			if (oldBalance != Balance)
 				NotifyPropertyChanged(nameof(Balance));
-			NotifyPropertyChanged(nameof(Entries));
+
+			if (entriesChanged)
+				NotifyPropertyChanged(nameof(Entries));
 		}
 
 		void Entry_PropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -59,6 +59,10 @@
 	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>
    </EmbeddedResource>
  </ItemGroup>
+
+ <ItemGroup>
+   <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+ </ItemGroup>
  <ItemGroup>
    <Resource Include="Icons\Exit_16x.png">
 	 <CopyToOutputDirectory>Never</CopyToOutputDirectory>

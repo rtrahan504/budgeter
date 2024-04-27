@@ -36,14 +36,16 @@ namespace Budgeter
 
 				m_AccountList.CurrentBudgetView = null;
 				m_AccountBalanceSheet.CurrentBudgetView = null;
+				m_AccountBalanceChart.CurrentBudgetView = null;
 				m_AccountRecurringChargeTemplates.CurrentBudgetView = null;
-				m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;				
+				m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;
 
 				m_BudgetView = value;
 
 				m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
 				m_AccountList.CurrentBudgetView = m_BudgetView;
 				m_AccountBalanceSheet.CurrentBudgetView = m_BudgetView;
+				m_AccountBalanceChart.CurrentBudgetView = m_BudgetView;
 				m_AccountRecurringChargeTemplates.CurrentBudgetView = m_BudgetView;
 
 				NotifyPropertyChanged();
@@ -296,7 +298,7 @@ namespace Budgeter
 
 		private void ToggleButton_Checked(object sender, RoutedEventArgs e)
 		{
-			foreach( var control in new Control[] { this, this.m_AccountList, this.m_AccountBalanceSheet, this.m_AccountRecurringChargeTemplates })
+			foreach( var control in new Control[] { this, this.m_AccountList, this.m_AccountBalanceSheet, this.m_AccountRecurringChargeTemplates, this.m_AccountBalanceChart })
 			{
 				bool found = false;
 				do
@@ -315,6 +317,8 @@ namespace Budgeter
 			}
 
 			UpdateLayout();
+
+			m_AccountBalanceChart.UpdateStyling();
 		}
 
 		private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
@@ -324,6 +328,10 @@ namespace Budgeter
 				Source = DarkModeSource
 			};
 			Resources.MergedDictionaries.Add(rd);
+
+			UpdateLayout();
+
+			m_AccountBalanceChart.UpdateStyling();
 		}
 
 		private void Label_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
