@@ -4,16 +4,17 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Budgeter
 {
 	/// <summary>
 	/// Interaction logic for AccountList.xaml
 	/// </summary>
-	public partial class AccountList : UserControl, INotifyPropertyChanged
+	public partial class AccountList : UserControl, IBudgetCommands, INotifyPropertyChanged
 	{
 		BudgetView? m_BudgetView;
-		public BudgetView? CurrentBudgetView
+		public BudgetView? BudgetView
 		{
 			get { return m_BudgetView; }
 			set
@@ -32,7 +33,7 @@ namespace Budgeter
 					m_BudgetView.Budget.PropertyChanged += OnBudgetViewPropertyChanged;
 				}
 
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
+				NotifyPropertyChanged(nameof(BudgetView));
 				NotifyPropertyChanged(nameof(CurrentAccounts));
 
 				OnBudgetViewPropertyChanged(null, new PropertyChangedEventArgs(nameof(BudgetView.SelectedAccount)));
@@ -84,15 +85,9 @@ namespace Budgeter
 			if (m_BudgetView.SelectedAccount != (e.AddedItems.Count == 1 ? e.AddedItems[0] as Account : null))
 				m_BudgetView.SelectedAccount = e.AddedItems.Count == 1 ? e.AddedItems[0] as Account : null;
 		}
+		
+		public void OnCommand_Account_NewAccount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).Account_NewAccount(sender, e);
+		public void OnCommand_Account_DeleteAccount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).Account_DeleteAccount(sender, e);
 
-		private void OnMenuClick(object sender, RoutedEventArgs e)
-		{
-			MenuItem? menuItem = sender as MenuItem;
-
-			if (menuItem == null || m_BudgetView == null || menuItem.Tag is not string menuItemTag)
-				return;
-
-			MenuClickHandlers.OnMenuClick(menuItemTag, m_BudgetView);
-		}
 	}
 }

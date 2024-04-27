@@ -4,16 +4,17 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Budgeter
 {
 	/// <summary>
 	/// Interaction logic for AccountRecurringChargeTemplates.xaml
 	/// </summary>
-	public partial class AccountRecurringChargeTemplates : UserControl, INotifyPropertyChanged
+	public partial class AccountRecurringChargeTemplates : UserControl, IBudgetCommands, INotifyPropertyChanged
 	{
 		BudgetView? m_BudgetView;
-		public BudgetView? CurrentBudgetView
+		public BudgetView? BudgetView
 		{
 			get { return m_BudgetView; }
 			set
@@ -32,13 +33,11 @@ namespace Budgeter
 					SelectedAccount = m_BudgetView.SelectedAccount;
 				}
 
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
+				NotifyPropertyChanged(nameof(BudgetView));
 			}
 		}
 
 		Account? m_SelectedAccount;
-
-
 		Account? SelectedAccount
 		{
 			get { return m_SelectedAccount; }
@@ -122,14 +121,8 @@ namespace Budgeter
 				m_BudgetView.SelectedAccount.DaysToForecast = (int)e.NewValue;
 		}
 
-		private void OnMenuClick(object sender, RoutedEventArgs e)
-		{
-			MenuItem? menuItem = sender as MenuItem;
 
-			if (menuItem == null || m_BudgetView == null || menuItem.Tag is not string menuItemTag)
-				return;
-
-			MenuClickHandlers.OnMenuClick(menuItemTag, m_BudgetView);
-		}
+		void OnCommand_RecurringTransactions_New(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).RecurringTransactions_New(sender, e);
+		void OnCommand_RecurringTransactions_Delete(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).RecurringTransactions_Delete(sender, e);
 	}
 }

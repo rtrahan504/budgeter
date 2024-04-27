@@ -26,6 +26,24 @@
         </ResourceDictionary>
 
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.New" Executed="OnCommand_New"/>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OnCommand_Open"/>
+        <CommandBinding Command="ApplicationCommands.Save" Executed="OnCommand_Save"/>
+        <CommandBinding Command="ApplicationCommands.SaveAs" Executed="OnCommand_SaveAs"/>
+        <CommandBinding Command="ApplicationCommands.Close" Executed="OnCommand_Close"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_Account_NewAccount}" Executed="OnCommand_Account_NewAccount"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_Account_DeleteAccount}" Executed="OnCommand_Account_DeleteAccount"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Refresh}" Executed="OnCommand_BalanceSheet_Refresh"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewBalanceOverride}" Executed="OnCommand_BalanceSheet_NewBalanceOverride"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewCharge}" Executed="OnCommand_BalanceSheet_NewCharge"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Activate}" Executed="OnCommand_BalanceSheet_Activate"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Deactivate}" Executed="OnCommand_BalanceSheet_Deactivate"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Delete}" Executed="OnCommand_BalanceSheet_Delete"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_ResetAmount}" Executed="OnCommand_BalanceSheet_ResetAmount"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_New}" Executed="OnCommand_RecurringTransactions_New"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_Delete}" Executed="OnCommand_RecurringTransactions_Delete"/>
+    </Window.CommandBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -39,32 +57,32 @@
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Tag="File_New" Click="OnMenuClick" Icon="{StaticResource Icon_NewFile}"/>
-                <MenuItem Header="_Open..." Tag="File_Open" Click="OnMenuClick" InputGestureText="Ctrl+O" Icon="{StaticResource Icon_OpenFile}"/>
-                <MenuItem Header="_Save" Tag="File_Save" Click="OnMenuClick" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
-                <MenuItem Header="Save As..." Tag="File_SaveAs" Click="OnMenuClick" Icon="{StaticResource Icon_SaveAs}"/>
+                <MenuItem Command="ApplicationCommands.New" Header="_New" Icon="{StaticResource Icon_NewFile}"/>
+                <MenuItem Command="ApplicationCommands.Open" Header="_Open..." Icon="{StaticResource Icon_OpenFile}" InputGestureText="Ctrl+O"/>
+                <MenuItem Command="ApplicationCommands.Save" Header="_Save" InputGestureText="Ctrl+S" Icon="{StaticResource Icon_Save}"/>
+                <MenuItem Command="ApplicationCommands.SaveAs" Header="Save As..." Icon="{StaticResource Icon_SaveAs}"/>
                 <Separator/>
-                <MenuItem Header="_Exit" Tag="Program_Exit" Click="OnMenuClick" Icon="{StaticResource Icon_Exit}"/>
+                <MenuItem Command="ApplicationCommands.Close" Header="_Exit" Icon="{StaticResource Icon_Exit}"/>
             </MenuItem>
             <MenuItem Header="_Account">
-                <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
-                <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_Account_NewAccount}" Header="New Account"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_Account_DeleteAccount}" Header="Delete Account"/>
             </MenuItem>
             <MenuItem Header="_Balance Sheet">
-                <MenuItem Tag="BalanceSheet_Refresh" Header="_Refresh" Click="OnMenuClick" Icon="{StaticResource Icon_Refresh}"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Refresh}" Header="_Refresh" Icon="{StaticResource Icon_Refresh}"/>
                 <Separator/>
-                <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
-                <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
-                <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
-                <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
-                <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
-                <MenuItem Tag="BalanceSheet_ResetAmount" Click="OnMenuClick" Header="Reset Amount"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewCharge}" Header="New Charge"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewBalanceOverride}" Header="New Balance Override"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Activate}" Header="Activate Transaction"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Deactivate}" Header="Deactivate Transaction"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Delete}" Header="Delete Transaction"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_ResetAmount}" Header="Reset Amount"/>
             </MenuItem>
             <MenuItem Header="_Recurring Transactions">
-                <MenuItem Tag="RecurringTransactions_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
-                <MenuItem Tag="RecurringTransactions_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_New}" Header="New Recurring Transaction"/>
+                <MenuItem Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_Delete}" Header="Delete Recurring Transaction"/>
             </MenuItem>
-            <MenuItem Header="_About" Tag="About" Click="OnMenuClick"/>
+            <MenuItem Command="{x:Static local:MainWindow.Command_About}" Header="_About"/>
         </Menu>
         <Grid Margin="5,0" Name="Grid_BalanceSheet" Grid.Row="1">
             <Grid.LayoutTransform>

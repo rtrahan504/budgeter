@@ -3,13 +3,18 @@ using System.Windows;
 using System.Windows.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using System.Collections.Generic;
+using System.Linq;
+using System.ComponentModel.Design;
+
 
 namespace Budgeter
 {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window, INotifyPropertyChanged, INotifyPropertyChanging
+	public partial class MainWindow : Window, IBudgetCommands, INotifyPropertyChanged, INotifyPropertyChanging
 	{
 		public MainWindow()
 		{
@@ -34,19 +39,21 @@ namespace Budgeter
 			{
 				NotifyPropertyChanging();
 
-				m_AccountList.CurrentBudgetView = null;
-				m_AccountBalanceSheet.CurrentBudgetView = null;
-				m_AccountBalanceChart.CurrentBudgetView = null;
-				m_AccountRecurringChargeTemplates.CurrentBudgetView = null;
+				m_AccountList.BudgetView = null;
+				m_AccountBalanceSheet.BudgetView = null;
+				m_AccountBalanceChart.BudgetView = null;
+				m_AccountRecurringChargeTemplates.BudgetView = null;
+
 				m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;
 
 				m_BudgetView = value;
 
 				m_BudgetView.PropertyChanged += OnBudgetViewPropertyChanged;
-				m_AccountList.CurrentBudgetView = m_BudgetView;
-				m_AccountBalanceSheet.CurrentBudgetView = m_BudgetView;
-				m_AccountBalanceChart.CurrentBudgetView = m_BudgetView;
-				m_AccountRecurringChargeTemplates.CurrentBudgetView = m_BudgetView;
+				m_AccountList.BudgetView = m_BudgetView;
+				m_AccountBalanceSheet.BudgetView = m_BudgetView;
+				m_AccountBalanceChart.BudgetView = m_BudgetView;
+				m_AccountRecurringChargeTemplates.BudgetView = m_BudgetView;
+
 
 				NotifyPropertyChanged();
 			}
@@ -119,77 +126,6 @@ namespace Budgeter
 		}
 
 
-		private void OnMenuClick(object sender, RoutedEventArgs e)
-		{
-			MenuItem? menuItem = sender as MenuItem;
-
-			if (menuItem == null || menuItem.Tag is not string menuItemTag)
-				return;
-
-			MenuClickHandlers.OnMenuClick(menuItemTag, BudgetView);
-
-			if (menuItemTag == "File_New")
-			{
-				try
-				{
-					if (System.Windows.MessageBox.Show("Are you sure you want to start a new budget?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-						BudgetView = new BudgetView();
-				}
-				catch (OperationCanceledException)
-				{
-					return;
-				}
-			}
-			else if (menuItemTag == "File_Open")
-			{
-				try
-				{
-					Microsoft.Win32.OpenFileDialog dialog = new()
-					{
-						FileName = "Budget", // Default file name
-						DefaultExt = ".bgt", // Default file extension
-						Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
-					};
-
-					if (dialog.ShowDialog() == true)
-						BudgetView = BudgetView.Load(dialog.FileName);
-				}
-				catch (OperationCanceledException)
-				{
-					return;
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show("An error occurred.\n" + ex.Message, "Error", MessageBoxButton.OK);
-				}
-			}
-			else if (menuItemTag == "File_Save" || menuItemTag == "File_SaveAs")
-			{
-				SaveBudget(menuItemTag == "File_SaveAs");
-			}
-			else if (menuItemTag == "Program_Exit")
-			{
-				Close();
-			}
-			else if (menuItemTag == "About")
-			{
-				About newwindow = new()
-				{
-					Owner = this
-				};
-
-				if (toggleButton_DarkMode.IsChecked == false)
-				{
-					var rd = new System.Windows.ResourceDictionary
-					{
-						Source = DarkModeSource
-					};
-					newwindow.Resources.MergedDictionaries.Add(rd);
-				}
-
-				newwindow.ShowDialog();
-			}
-		}
 
 		private void Window_Closing(object sender, CancelEventArgs e)
 		{
@@ -298,7 +234,7 @@ namespace Budgeter
 
 		private void ToggleButton_Checked(object sender, RoutedEventArgs e)
 		{
-			foreach( var control in new Control[] { this, this.m_AccountList, this.m_AccountBalanceSheet, this.m_AccountRecurringChargeTemplates, this.m_AccountBalanceChart })
+			foreach (var control in new Control[] { this, this.m_AccountList, this.m_AccountBalanceSheet, this.m_AccountRecurringChargeTemplates, this.m_AccountBalanceChart })
 			{
 				bool found = false;
 				do
@@ -338,5 +274,87 @@ namespace Budgeter
 		{
 			m_Slider_Name.Value = 1;
 		}
+
+
+		void OnCommand_New(object sender, ExecutedRoutedEventArgs args)
+		{
+			try
+			{
+				if (System.Windows.MessageBox.Show("Are you sure you want to start a new budget?", "Confirm", System.Windows.MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+					BudgetView = new BudgetView();
+			}
+			catch (OperationCanceledException)
+			{
+				return;
+			}
+		}
+		void OnCommand_Open(object sender, ExecutedRoutedEventArgs args)
+		{
+			try
+			{
+				Microsoft.Win32.OpenFileDialog dialog = new()
+				{
+					FileName = "Budget", // Default file name
+					DefaultExt = ".bgt", // Default file extension
+					Filter = "Budget File (.bgt)|*.bgt" // Filter files by extension
+				};
+
+				if (dialog.ShowDialog() == true)
+					BudgetView = BudgetView.Load(dialog.FileName);
+			}
+			catch (OperationCanceledException)
+			{
+				return;
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show("An error occurred.\n" + ex.Message, "Error", MessageBoxButton.OK);
+			}
+		}
+		void OnCommand_Save(object sender, ExecutedRoutedEventArgs args)
+		{
+			SaveBudget(false);
+		}
+		void OnCommand_SaveAs(object sender, ExecutedRoutedEventArgs args)
+		{
+			SaveBudget(true);
+		}
+		void OnCommand_Close(object sender, ExecutedRoutedEventArgs args)
+		{
+			Close();
+		}
+
+		public static RoutedCommand Command_About = new RoutedCommand();
+		void OnCommand_About(object sender, ExecutedRoutedEventArgs e)
+		{
+			About newwindow = new()
+			{
+				Owner = this
+			};
+
+			if (toggleButton_DarkMode.IsChecked == false)
+			{
+				var rd = new System.Windows.ResourceDictionary
+				{
+					Source = DarkModeSource
+				};
+				newwindow.Resources.MergedDictionaries.Add(rd);
+			}
+
+			newwindow.ShowDialog();
+		}
+
+
+		public void OnCommand_Account_NewAccount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).Account_NewAccount(sender, e);
+		public void OnCommand_Account_DeleteAccount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).Account_DeleteAccount(sender, e);
+		public void OnCommand_BalanceSheet_Refresh(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Refresh(sender, e);
+		public void OnCommand_BalanceSheet_NewCharge(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_NewCharge(sender, e);
+		public void OnCommand_BalanceSheet_NewBalanceOverride(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_NewBalanceOverride(sender, e);
+		public void OnCommand_BalanceSheet_Activate(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Activate(sender, e);
+		public void OnCommand_BalanceSheet_Deactivate(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Deactivate(sender, e);
+		public void OnCommand_BalanceSheet_Delete(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Delete(sender, e);
+		public void OnCommand_BalanceSheet_ResetAmount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_ResetAmount(sender, e);
+		public void OnCommand_RecurringTransactions_New(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).RecurringTransactions_New(sender, e);
+		public void OnCommand_RecurringTransactions_Delete(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).RecurringTransactions_Delete(sender, e);
 	}
 }

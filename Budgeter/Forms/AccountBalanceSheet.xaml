@@ -21,6 +21,15 @@
             <local:ZoomConverter x:Key="ZoomConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Refresh}" Executed="OnCommand_BalanceSheet_Refresh"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewBalanceOverride}" Executed="OnCommand_BalanceSheet_NewBalanceOverride"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewCharge}" Executed="OnCommand_BalanceSheet_NewCharge"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Activate}" Executed="OnCommand_BalanceSheet_Activate"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Deactivate}" Executed="OnCommand_BalanceSheet_Deactivate"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Delete}" Executed="OnCommand_BalanceSheet_Delete"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_ResetAmount}" Executed="OnCommand_BalanceSheet_ResetAmount"/>
+    </UserControl.CommandBindings>
     <Border BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
         <DockPanel>
             <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Account Balance Sheet</Label>
@@ -113,12 +122,12 @@
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Tag="BalanceSheet_NewCharge" Header="New Charge" Click="OnMenuClick"/>
-                        <MenuItem Tag="BalanceSheet_NewBalanceOverride" Header="New Balance Override" Click="OnMenuClick"/>
-                        <MenuItem Tag="BalanceSheet_Activate" Click="OnMenuClick" Header="Activate Transaction"/>
-                        <MenuItem Tag="BalanceSheet_Deactivate" Click="OnMenuClick" Header="Deactivate Transaction"/>
-                        <MenuItem Tag="BalanceSheet_Delete" Click="OnMenuClick" Header="Delete Transaction"/>
-                        <MenuItem Tag="BalanceSheet_ClearAmount" Click="OnMenuClick" Header="Clear Amount"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewCharge}" Header="New Charge"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_NewBalanceOverride}" Header="New Balance Override"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Activate}" Header="Activate Transaction"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Deactivate}" Header="Deactivate Transaction"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_Delete}" Header="Delete Transaction"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_BalanceSheet_ResetAmount}" Header="Reset Amount"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>

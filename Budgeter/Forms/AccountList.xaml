@@ -21,6 +21,10 @@
             <local:ZoomConverter x:Key="ZoomConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_Account_NewAccount}" Executed="OnCommand_Account_NewAccount"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_Account_DeleteAccount}" Executed="OnCommand_Account_DeleteAccount"/>
+    </UserControl.CommandBindings>
     <Border Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
         <DockPanel>
             <Label DockPanel.Dock="Top" Foreground="{DynamicResource Foreground}" Background="{DynamicResource CloseButtonBackgroundPressed}">Accounts</Label>
@@ -49,8 +53,8 @@
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Tag="Account_NewAccount" Header="New Account" Click="OnMenuClick"/>
-                        <MenuItem Tag="Account_DeleteAccount" Header="Delete Account" Click="OnMenuClick"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_Account_NewAccount}" Header="New Account"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_Account_DeleteAccount}" Header="Delete Account"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>

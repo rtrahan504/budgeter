@@ -27,6 +27,10 @@
             <local:ZoomConverter x:Key="ZoomConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_New}" Executed="OnCommand_RecurringTransactions_New"/>
+        <CommandBinding Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_Delete}" Executed="OnCommand_RecurringTransactions_Delete"/>
+    </UserControl.CommandBindings>
     <Border Grid.Column="4" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
         <DockPanel>
             <Label DockPanel.Dock="Top" Background="{DynamicResource CloseButtonBackgroundPressed}" Foreground="{DynamicResource Foreground}">Recurring Transactions</Label>
@@ -73,8 +77,8 @@
                 </DataGrid.Columns>
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Tag="RecurringTransactions_New" Click="OnMenuClick" Header="New Recurring Transaction"/>
-                        <MenuItem Tag="RecurringTransactions_Delete" Click="OnMenuClick" Header="Delete Recurring Transaction"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_New}" Header="New Recurring Transaction"/>
+                        <MenuItem Command="{x:Static local:IBudgetCommands.Command_RecurringTransactions_Delete}" Header="Delete Recurring Transaction"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
             </DataGrid>

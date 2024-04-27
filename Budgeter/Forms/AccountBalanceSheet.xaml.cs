@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Budgeter
@@ -11,13 +12,13 @@ namespace Budgeter
 	/// <summary>
 	/// Interaction logic for AccountBalanceSheet.xaml
 	/// </summary>
-	public partial class AccountBalanceSheet : UserControl, INotifyPropertyChanged
+	public partial class AccountBalanceSheet : UserControl, IBudgetCommands, INotifyPropertyChanged
 	{
 		BudgetView? m_BudgetView;
 		Account? m_SelectedAccount;
 		bool m_SelectedAccountEntriesUpdating = false;
 
-		public BudgetView? CurrentBudgetView
+		public BudgetView? BudgetView
 		{
 			get { return m_BudgetView; }
 			set
@@ -25,12 +26,13 @@ namespace Budgeter
 				if (m_BudgetView != null)
 				{
 					m_BudgetView.PropertyChanged -= OnBudgetViewPropertyChanged;
+
 				}
 
 				SelectedAccount = null;
 				m_BudgetView = value;
 
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
+				NotifyPropertyChanged(nameof(BudgetView));
 
 				if (m_BudgetView != null)
 				{
@@ -161,15 +163,14 @@ namespace Budgeter
 				e.Cancel = true;
 			}
 		}
- 
-		private void OnMenuClick(object sender, RoutedEventArgs e)
-		{
-			MenuItem? menuItem = sender as MenuItem;
 
-			if (menuItem == null || m_BudgetView == null || menuItem.Tag is not string menuItemTag)
-				return;
 
-			MenuClickHandlers.OnMenuClick(menuItemTag, m_BudgetView);
-		}
+		public void OnCommand_BalanceSheet_Refresh(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Refresh(sender, e);
+		public void OnCommand_BalanceSheet_NewCharge(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_NewCharge(sender, e);
+		public void OnCommand_BalanceSheet_NewBalanceOverride(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_NewBalanceOverride(sender, e);
+		public void OnCommand_BalanceSheet_Activate(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Activate(sender, e);
+		public void OnCommand_BalanceSheet_Deactivate(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Deactivate(sender, e);
+		public void OnCommand_BalanceSheet_Delete(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_Delete(sender, e);
+		public void OnCommand_BalanceSheet_ResetAmount(object sender, ExecutedRoutedEventArgs e) => ((IBudgetCommands)this).BalanceSheet_ResetAmount(sender, e);
 	}
 }

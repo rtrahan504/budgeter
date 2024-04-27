@@ -53,7 +53,7 @@ namespace Budgeter
 			set { m_EndDate = value; updatePlot(); }
 		}
 
-		public BudgetView? CurrentBudgetView
+		public BudgetView? BudgetView
 		{
 			get { return m_BudgetView; }
 			set
@@ -66,7 +66,7 @@ namespace Budgeter
 				SelectedAccount = null;
 				m_BudgetView = value;
 
-				NotifyPropertyChanged(nameof(CurrentBudgetView));
+				NotifyPropertyChanged(nameof(BudgetView));
 
 				if (m_BudgetView != null)
 				{
@@ -145,7 +145,9 @@ namespace Budgeter
 				Annotations = { m_TodayAnnotation }, 
 				Axes = { m_XAxis, m_YAxis } };
 
+#pragma warning disable CS0618
 			m_XAxis.AxisChanged += XAxis_AxisChanged;
+#pragma warning restore CS0618
 
 			InitializeComponent();
 
@@ -346,9 +348,9 @@ namespace Budgeter
 				MarkerFill = OxyPlot.OxyColor.FromRgb(SystemColors.HighlightColor.R, SystemColors.HighlightColor.G, SystemColors.HighlightColor.B),
 				MarkerStroke = OxyPlot.OxyColor.FromRgb(SystemColors.HighlightTextColor.R, SystemColors.HighlightTextColor.G, SystemColors.HighlightTextColor.B)
 			};
-			if (CurrentBudgetView != null)
+			if (m_BudgetView != null)
 			{
-				foreach (var item in CurrentBudgetView.SelectedAccountEntries)
+				foreach (var item in m_BudgetView.SelectedAccountEntries)
 				{
 					if (item is Today)
 					{
@@ -394,7 +396,7 @@ namespace Budgeter
 
 		private void plotView_Balance_PreviewMouseDown(object sender, MouseButtonEventArgs e)
 		{
-			if (CurrentBudgetView == null)
+			if (m_BudgetView == null)
 				return;
 
 			HashSet<AccountEntry> entries = new();
@@ -411,13 +413,13 @@ namespace Budgeter
 						entries.Add(entry);
 					}
 				}
-				else if (item.Element == m_TodayAnnotation && CurrentBudgetView.SelectedAccount != null)
+				else if (item.Element == m_TodayAnnotation && m_BudgetView.SelectedAccount != null)
 				{
-					entries.Add(CurrentBudgetView.SelectedAccount.Today);
+					entries.Add(m_BudgetView.SelectedAccount.Today);
 				}
 			}
 
-			CurrentBudgetView.SelectedAccountEntries = entries;
+            m_BudgetView.SelectedAccountEntries = entries;
 		}
 	}
 }
